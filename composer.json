@@ -1,23 +1,12 @@
 {
-  "name": "cegrif01/geocoding",
-  "description": "Uses the census bureau's api to convert addresses into latitude and longitude",
-  "keywords": ["latitude", "longitude", "address"],
-  "homepage": "https://github.com/cegrif01/geocoding",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Chazbit",
-      "email": "charles@chazbit.com"
-    }
-  ],
-  "require": {
-    "php": "^8.2"
-  },
-  "autoload": {
-    "psr-4": {
-      "Geocoding\\": "src/"
-    }
-  },
-  "minimum-stability": "stable",
-  "prefer-stable": true
+    "name": "cegrif01/geocoding",
+    "description": "Uses the census bureau's api to convert addresses into latitude and longitude",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Geocoding\\": "src/"
+        }
+    },
+    "require": {}
 }
