@@ -1,6 +1,7 @@
 {
     "name": "cegrif01/geocoding",
     "description": "Uses the census bureau's api to convert addresses into latitude and longitude",
+    "keywords": ["latitude", "longitude", "address"],
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -8,5 +9,8 @@
             "Geocoding\\": "src/"
         }
     },
-    "require": {}
+    "require": {
+        "php" : "^8.2",
+        "email": "charles@chazbit.com"
+    }
 }
