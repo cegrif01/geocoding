@@ -1,3 +1,5 @@
 <?php
 
-echo "hello world!!!";
+use Geocoding\DataStructures\AddressStruct;
+
+$addressStruct = new AddressStruct;
