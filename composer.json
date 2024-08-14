@@ -4,13 +4,21 @@
     "keywords": ["latitude", "longitude", "address"],
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Chazbit",
+            "email": "charles@chazbit.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
-            "Geocoding\\": "src/"
+            "Geocoding\\": "src/",
+            "Tests\\": "tests/"
         }
     },
     "require": {
         "php" : "^8.2",
-        "email": "charles@chazbit.com"
+        "phpunit/phpunit": "^11.3"
+
     }
 }
