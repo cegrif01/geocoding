@@ -1,22 +1,21 @@
 {
-  "name": "your-vendor/your-package",
-  "description": "Description of Your Package",
-  "keywords": ["your-keyword-1", "your-keyword-2"],
-  "homepage": "https://your-package-url.com",
+  "name": "cegrif01/geocoding",
+  "description": "Uses the census bureau's api to convert addresses into latitude and longitude",
+  "keywords": ["latitude", "longitude", "address"],
+  "homepage": "https://github.com/cegrif01/geocoding",
   "license": "MIT",
   "authors": [
     {
-      "name": "Your Name",
-      "email": "your@email.com"
+      "name": "Chazbit",
+      "email": "charles@chazbit.com"
     }
   ],
   "require": {
-    "php": "^8.1",
-    "illuminate/support": "^8.0|^9.0|^10.0" // Adjust based on your Laravel version
+    "php": "^8.1"
   },
   "autoload": {
     "psr-4": {
-      "YourNamespace\\": "src/"
+      "Geocoding\\": "src/"
     }
   },
   "minimum-stability": "stable",
