@@ -41,8 +41,22 @@ class CensusBureauApi
      *
      * @return array
      */
-    public function getLatitudeAndLongitude(string $fullAddress) : array
+    public function getLatitudeAndLongitude(string $fullAddress)
     {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->generateUrl($fullAddress));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $serverResponse = curl_exec($ch);
+
+        curl_close($ch);
+
+        return $serverResponse;
+
+
+
 
     }
 
