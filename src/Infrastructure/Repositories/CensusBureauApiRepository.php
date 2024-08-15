@@ -2,6 +2,8 @@
 
 namespace Geocoding\Infrastructure\Repositories;
 
+use Geocoding\Domain\Address;
+use Geocoding\Domain\AddressDataRepositoryInterface;
 use Geocoding\Infrastructure\Config\GeocodingConfig;
 
 /**
@@ -9,8 +11,8 @@ use Geocoding\Infrastructure\Config\GeocodingConfig;
  * the json response of the data we will use
  */
 
-//vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiTest.php
-class CensusBureauApi
+//vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiRepositoryTest.php
+class CensusBureauApiRepository implements AddressDataRepositoryInterface
 {
     public GeocodingConfig $geocodingConfig;
 
@@ -19,11 +21,11 @@ class CensusBureauApi
         $this->geocodingConfig = $geocodingConfig;
     }
 
-    public function generateUrl(string $fullAddress) : string
+    public function generateUrl(Address $address) : string
     {
         $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
         $addressGetParam = '?'. $this->geocodingConfig->censusBureauAddressGetParam. '=';
-        $encodedAddress = $this->encodeAddress($fullAddress) . '&';
+        $encodedAddress = $address->getUrlEncodedFullAddress() . '&';
         $benchMark = 'benchmark='. $this->geocodingConfig->censusBureauBenchMarkParam . '&';
         $format = 'format='. $this->geocodingConfig->censusBureauBenchMarkFormat;
 
@@ -36,11 +38,11 @@ class CensusBureauApi
      *
      * @return string - json string
      */
-    public function getLatitudeAndLongitude(string $fullAddress) : string
+    public function fetchAddressCoordinates(Address $address) : array
     {
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $this->generateUrl($fullAddress));
+        curl_setopt($ch, CURLOPT_URL, $this->generateUrl($address));
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -48,20 +50,6 @@ class CensusBureauApi
 
         curl_close($ch);
 
-        return $serverResponse;
-    }
-
-    /**
-     * Hits the geolocation api with an address and returns json response
-     * of the request
-     *
-     * @return array
-     */
-    public function getLatitudeAndLongitudeToArray(string $fullAddress) :array
-    {
-        $serverResponse = $this->getLatitudeAndLongitude($fullAddress);
-
         return json_decode($serverResponse, true);
     }
-
 }

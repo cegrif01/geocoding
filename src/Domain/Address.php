@@ -21,7 +21,7 @@ class Address
                $this->addressStruct->zip;
     }
 
-    public function urlEncodeFullAddress() : string
+    public function getUrlEncodedFullAddress() : string
     {
         return rawurlencode($this->getFullAddress());
     }
