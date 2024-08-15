@@ -3,7 +3,7 @@
 namespace Geocoding\Actions;
 
 use Geocoding\DataStructures\AddressStruct;
-use Geocoding\DataStructures\LocationStruct;
+use Geocoding\DataStructures\Location;
 
 class ConvertAddressIntoLatAndLongAction
 {
