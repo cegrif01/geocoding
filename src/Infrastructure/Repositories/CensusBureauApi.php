@@ -26,7 +26,13 @@ class CensusBureauApi
 
     public function generateUrl(string $fullAddress) : string
     {
-        return 'test';
+        $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
+        $addressGetParam = '?'. $this->geocodingConfig->censusBureauAddressGetParam. '=';
+        $encodedAddress = $this->encodeAddress($fullAddress) . '&';
+        $benchMark = 'benchmark='. $this->geocodingConfig->censusBureauBenchMarkParam . '&';
+        $format = 'format='. $this->geocodingConfig->censusBureauBenchMarkFormat;
+
+        return $geocodeUrl. $addressGetParam. $encodedAddress. $benchMark. $format;
     }
 
     /**
