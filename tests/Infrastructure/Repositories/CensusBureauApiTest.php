@@ -14,8 +14,7 @@ class CensusBureauApiTest extends TestCase
     {
         $censusBureauApi = new CensusBureauApi(GeocodingConfig::make());
 
-        var_dump($censusBureauApi);
-        die;
+        dd($censusBureauApi);
 
     }
 }
