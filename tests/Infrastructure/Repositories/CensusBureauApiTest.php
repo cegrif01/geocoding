@@ -2,7 +2,7 @@
 
 namespace Tests\Infrastructure\GeocodingApis;
 
-use Geocoding\Config\GeocodingConfig;
+use Geocoding\Infrastructure\Config\GeocodingConfig;
 use Geocoding\Infrastructure\Repositories\CensusBureauApi;
 use PHPUnit\Framework\TestCase;
 

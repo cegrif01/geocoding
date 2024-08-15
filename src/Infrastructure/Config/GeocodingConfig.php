@@ -1,6 +1,6 @@
 <?php
 
-namespace Geocoding\Config;
+namespace Geocoding\Infrastructure\Config;
 
 class GeocodingConfig
 {

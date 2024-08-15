@@ -2,14 +2,14 @@
 
 namespace Geocoding\Infrastructure\Repositories;
 
-use Geocoding\Config\GeocodingConfig;
+use Geocoding\Infrastructure\Config\GeocodingConfig;
 
 /**
  * This class is responsible for hitting the Census Bureau api and returning
  * the json response of the data we will use
  */
 
-//vendor/bin/phpunit tests/Infrastructure/Repositories /CensusBureauApiTest.php
+//vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiTest.php
 class CensusBureauApi
 {
     public GeocodingConfig $geocodingConfig;
