@@ -1,0 +1,42 @@
+{
+  "result": {
+    "input": {
+      "address": {
+        "address": "1560 New Bushy Branch Rd, Manchester, TN 37355, United States"
+      },
+      "benchmark": {
+        "isDefault": true,
+        "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+        "id": "4",
+        "benchmarkName": "Public_AR_Current"
+      }
+    },
+    "addressMatches": [
+      {
+        "tigerLine": {
+          "side": "L",
+          "tigerLineId": "654037877"
+        },
+        "coordinates": {
+          "x": -86.05012799570659,
+          "y": 35.478336774833565
+        },
+        "addressComponents": {
+          "zip": "37355",
+          "streetName": "NEW BUSHY BRANCH",
+          "preType": "",
+          "city": "MANCHESTER",
+          "preDirection": "",
+          "suffixDirection": "",
+          "fromAddress": "1598",
+          "state": "TN",
+          "suffixType": "RD",
+          "toAddress": "1334",
+          "suffixQualifier": "",
+          "preQualifier": ""
+        },
+        "matchedAddress": "1560 NEW BUSHY BRANCH RD, MANCHESTER, TN, 37355"
+      }
+    ]
+  }
+}
