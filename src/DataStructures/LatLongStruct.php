@@ -2,7 +2,7 @@
 
 namespace Geocoding\DataStructures;
 
-class LocationStruct
+class LatLongStruct
 {
 
     public readonly string $latitude;
