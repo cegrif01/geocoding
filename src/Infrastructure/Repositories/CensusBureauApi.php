@@ -19,11 +19,6 @@ class CensusBureauApi
         $this->geocodingConfig = $geocodingConfig;
     }
 
-    public function encodeAddress(string $fullAddress) : string
-    {
-        return rawurlencode($fullAddress);
-    }
-
     public function generateUrl(string $fullAddress) : string
     {
         $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
