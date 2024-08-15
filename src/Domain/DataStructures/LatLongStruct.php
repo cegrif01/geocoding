@@ -1,6 +1,6 @@
 <?php
 
-namespace Geocoding\DataStructures;
+namespace Geocoding\Domain\DataStructures;
 
 class LatLongStruct
 {
@@ -14,6 +14,4 @@ class LatLongStruct
         $this->latitude = $latitude;
         $this->longitude = $longitude;
     }
-
-
 }

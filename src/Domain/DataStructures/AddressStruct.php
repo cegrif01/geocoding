@@ -1,6 +1,6 @@
 <?php
 
-namespace Geocoding\DataStructures;
+namespace Geocoding\Domain\DataStructures;
 
 class AddressStruct
 {
