@@ -88,34 +88,34 @@ class CensusBureauApiTest extends TestCase
                         "benchmarkName" => "Public_AR_Current"
                       ],
                     ],
-            "addressMatches" => [
-                    0 => [
-                    "tigerLine" => [
-                        "side" => "L",
-                          "tigerLineId" => "647384196",
-                    ],
-                    "coordinates" => [
-                        "x" => -84.50827551429869,
-                        "y" => 39.09612212505558,
-                    ],
-                    "addressComponents" => [
-                      "zip" => "45202",
-                      "streetName" => "JOE NUXHALL",
-                      "preType" => "",
-                      "city" => "CINCINNATI",
-                      "preDirection" => "",
-                      "suffixDirection" => "",
-                      "fromAddress" => "198",
-                      "state" => "OH",
-                      "suffixType" => "WAY",
-                      "toAddress" => "100",
-                      "suffixQualifier" => "",
-                      "preQualifier" => "",
-                    ],
-                    "matchedAddress" => "100 JOE NUXHALL WAY, CINCINNATI, OH, 45202"
-                  ]
+                "addressMatches" => [
+                    [
+                        "tigerLine" => [
+                            "side" => "L",
+                              "tigerLineId" => "647384196",
+                        ],
+                        "coordinates" => [
+                            "x" => -84.50827551429869,
+                            "y" => 39.09612212505558,
+                        ],
+                        "addressComponents" => [
+                          "zip" => "45202",
+                          "streetName" => "JOE NUXHALL",
+                          "preType" => "",
+                          "city" => "CINCINNATI",
+                          "preDirection" => "",
+                          "suffixDirection" => "",
+                          "fromAddress" => "198",
+                          "state" => "OH",
+                          "suffixType" => "WAY",
+                          "toAddress" => "100",
+                          "suffixQualifier" => "",
+                          "preQualifier" => "",
+                        ],
+                        "matchedAddress" => "100 JOE NUXHALL WAY, CINCINNATI, OH, 45202"
+                    ]
                 ]
-          ]
+            ]
         ],
             $response
         );

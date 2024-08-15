@@ -39,7 +39,7 @@ class CensusBureauApi
      * Hits the geolocation api with an address and returns json response
      * of the request
      *
-     * @return array
+     * @return string - json string
      */
     public function getLatitudeAndLongitude(string $fullAddress) : string
     {
