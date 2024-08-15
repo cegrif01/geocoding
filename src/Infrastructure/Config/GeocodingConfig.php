@@ -23,16 +23,14 @@ class GeocodingConfig
         $this->censusBureauBenchMarkFormat = $censusBureauBenchMarkFormat;
     }
 
-    public static function make(string $censusBureauUrl,
-                                string $censusBureauAddressGetParam,
-                                string $censusBureauBenchMarkParam,
-                                string $censusBureauBenchMarkFormat)
+    public static function make(string $censusBureauUrl = 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress',
+                                string $censusBureauAddressGetParam = 'address',
+                                string $censusBureauBenchMarkParam = '4',
+                                string $censusBureauBenchMarkFormat = 'json')  : static
     {
         return new static($censusBureauUrl,
                           $censusBureauAddressGetParam,
                           $censusBureauBenchMarkParam,
                           $censusBureauBenchMarkFormat);
     }
-
-
 }
