@@ -21,7 +21,7 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
         $this->geocodingConfig = $geocodingConfig;
     }
 
-    public function generateUrl(Address $address) : string
+    public function generateUrlFromAddress(Address $address) : string
     {
         $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
         $addressGetParam = '?'. $this->geocodingConfig->censusBureauAddressGetParam. '=';
@@ -36,13 +36,13 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
      * Hits the geolocation api with an address and returns json response
      * of the request
      *
-     * @return string - json string
+     * @return array
      */
     public function fetchAddressCoordinates(Address $address) : array
     {
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $this->generateUrl($address));
+        curl_setopt($ch, CURLOPT_URL, $this->generateUrlFromAddress($address));
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 

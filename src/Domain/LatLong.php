@@ -13,4 +13,13 @@ class LatLong
         $this->latLongStruct = $latLongStruct;
     }
 
+    public function getLatitude() : string
+    {
+        return $this->latLongStruct->latitude;
+    }
+
+    public function getLongitude() : string
+    {
+        return $this->latLongStruct->longitude;
+    }
 }
