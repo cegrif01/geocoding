@@ -41,7 +41,7 @@ class CensusBureauApi
      *
      * @return array
      */
-    public function getLatitudeAndLongitude(string $fullAddress)
+    public function getLatitudeAndLongitude(string $fullAddress) : string
     {
         $ch = curl_init();
 
@@ -54,11 +54,19 @@ class CensusBureauApi
         curl_close($ch);
 
         return $serverResponse;
-
-
-
-
     }
 
+    /**
+     * Hits the geolocation api with an address and returns json response
+     * of the request
+     *
+     * @return array
+     */
+    public function getLatitudeAndLongitudeToArray(string $fullAddress) :array
+    {
+        $serverResponse = $this->getLatitudeAndLongitude($fullAddress);
+
+        return json_decode($serverResponse, true);
+    }
 
 }
