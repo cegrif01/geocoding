@@ -6,20 +6,23 @@ use Geocoding\Domain\DataStructures\AddressStruct;
 
 class Address
 {
-    private readonly AddressStruct $addressStruct;
+    public readonly AddressStruct $addressStruct;
 
-    public function __construct(AddressStuct $addressStruct)
+    public function __construct(AddressStruct $addressStruct)
     {
         $this->addressStruct = $addressStruct;
     }
 
     public function getFullAddress() : string
     {
-
+        return $this->addressStruct->street . ', ' .
+               $this->addressStruct->city . ', '.
+               $this->addressStruct->state . ' '.
+               $this->addressStruct->zip;
     }
 
-    public function encodeAddress(string $fullAddress) : string
+    public function urlEncodeFullAddress() : string
     {
-        return rawurlencode($fullAddress);
+        return rawurlencode($this->getFullAddress());
     }
 }
