@@ -4,13 +4,29 @@
     "keywords": ["latitude", "longitude", "address"],
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Chazbit",
+            "email": "charles@chazbit.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Geocoding\\": "src/"
         }
     },
     "require": {
-        "php" : "^8.2",
-        "email": "charles@chazbit.com"
+        "php" : "~8.2.0-dev",
+        "larapack/dd": "1.1",
+        "illuminate/collections": "v10.48.20"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~10.5.30"
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     }
 }
