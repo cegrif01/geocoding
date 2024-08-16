@@ -143,7 +143,7 @@ When we need functionality that modifies one of these value objects, then we can
 For example if we want to update the city, we can put this method in the Address class.
 
 ```
-    public function updateCity(string $city) : Address
+    public function setCity(string $city) : Address
     {
          return new Address($this->addressStruct->country,
                             $city,
@@ -152,5 +152,87 @@ For example if we want to update the city, we can put this method in the Address
                             $this->addressStruct->zip,
         );
     }
+```
+
+This might seem a little unorthodox, but immutable underlying data structures solves many issues with "unintentional state changes".
+In my experiences with OOP, having a solution for unintentional state changes is much appreciated, even though, it might not be totally apparent why that's necessary.
+
+Let's look at an example of the mutable way and how side effects can creep in:
+
+```
+$address1 = new Address('USA', 'Cincinnati', 'OH', '555 Something St.', '40205');
+
+$address2 = new Address('USA', 'Cincinnati', 'OH', '555 Something St.', '40205');
+
+$adress1->equals($address2); //returns true
+
+
+public function someMethodThatChangesCity(Address $address) : Address
+{
+    //some logic
+    
+    //changes address by modifying the instance directly (mutable)
+    $address->setCity('San Diego');
+    
+    return $address;
+}
+
+$addressReturnedFromService = $this->serviceClass->someMethodThatChangesCity($address1);
+
+
+$addressReturnedFromService->equals($address1); //returns true
+$adress1->equals($address2); //returns false
+
+```
+
+With an immutable address
+
+```
+$address1 = new Address('USA', 'Cincinnati', 'OH', '555 Something St.', '40205');
+
+$address2 = new Address('USA', 'Cincinnati', 'OH', '555 Something St.', '40205');
+
+$adress1->equals($address2); //returns true
+
+
+public function someMethodThatChangesCity(Address $address) : Address
+{
+    //some logic
+    
+    //changes address but returns a new instance instead of modifying the address passed in (immutable)
+    $address->setCityButReturnsNewAddress('San Diego');
+    
+    return $address;
+}
+
+$addressReturnedFromService = $this->serviceClass->someMethodThatChangesCity($address1);
+
+
+$addressReturnedFromService->equals($address1); //false
+
+//since the $address1 object is never modified, it still equals to the original
+$adress1->equals($address2); //returns true
+```
+
+If you don't understand why this is a big deal, then please, take the time to break this apart using various examples. This is an extremely important principle
+that I feel like less experienced software developers miss.
+
+Let's move on to the RepositoryInterface we created.  This interface belongs in our domain.  It describes how the outside world
+will use our domain models.  This should always receive domain models and/or return domain models.  In this case, the "outside world"
+is the REST api offered by the Census Bureau
+
+
+```
+<?php
+
+namespace Geocoding\Domain;
+
+use Geocoding\Domain\LatLong;
+
+interface AddressDataRepositoryInterface
+{
+
+    public function fetchAddressCoordinates(Address $address) : LatLong;
+}
 ```
 
