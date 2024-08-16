@@ -154,7 +154,7 @@ For example if we want to update the city, we can put this method in the Address
     }
 ```
 
-This might seem a little unorthodox, but immutable underlying data structures solves many issues with "unintentional state changes".
+This might seem a little unorthodox, but immutable underlying data structures solve many issues with "unintentional state changes".
 In my experiences with OOP, having a solution for unintentional state changes is much appreciated, even though, it might not be totally apparent why that's necessary.
 
 Let's look at an example of the mutable way and how side effects can creep in:
@@ -219,7 +219,14 @@ that I feel like less experienced software developers miss.
 
 Let's move on to the RepositoryInterface we created.  This interface belongs in our domain.  It describes how the outside world
 will use our domain models.  This should always receive domain models and/or return domain models.  In this case, the "outside world"
-is the REST api offered by the Census Bureau
+is the REST api offered by the Census Bureau.  When I first learned Domain Driven Design, I was confused as to why the Repository interfaces
+were in the domain itself and not in the repositories folder.  Think of it this way... when you're designing the application
+domain models need be used somehow by some type of external process.  We either want to write it to a file, save it to a database, or -- in this particular case -- use
+it to consume the correct API endpoints.  The objective of this project is to take an address and convert it into latitude and longitude.
+
+Another thing to take into consideration is that the Census Bureau may charge us for this service one day and it might be more cost
+effective to use another way to perform the main objective.  Hence the RepositoryInterface.  In other words, a the RepositoryInterface means 
+"I don't know how we're gonna get it done, but we are gonna get er' done".
 
 
 ```
