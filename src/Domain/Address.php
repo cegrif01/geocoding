@@ -8,9 +8,13 @@ class Address
 {
     public readonly AddressStruct $addressStruct;
 
-    public function __construct(AddressStruct $addressStruct)
+    public function __construct(string $country,
+                                string $city,
+                                string $state,
+                                string $street,
+                                string $zip)
     {
-        $this->addressStruct = $addressStruct;
+        $this->addressStruct = new AddressStruct($country, $city, $state, $street, $zip);
     }
 
     public function getFullAddress() : string

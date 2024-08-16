@@ -8,9 +8,9 @@ class LatLong
 {
     private readonly LatLongStruct $latLongStruct;
 
-    public function __construct(LatLongStruct $latLongStruct)
+    public function __construct(string $latitude, string $longitude)
     {
-        $this->latLongStruct = $latLongStruct;
+        $this->latLongStruct = new LatLongStruct(latitude: $latitude, longitude: $longitude);
     }
 
     public function getLatitude() : string

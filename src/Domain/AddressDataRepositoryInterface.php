@@ -2,8 +2,10 @@
 
 namespace Geocoding\Domain;
 
+use Geocoding\Domain\LatLong;
+
 interface AddressDataRepositoryInterface
 {
 
-    public function fetchAddressCoordinates(Address $address) : array;
+    public function fetchAddressCoordinates(Address $address) : LatLong;
 }
