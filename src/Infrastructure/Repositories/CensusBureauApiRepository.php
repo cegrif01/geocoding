@@ -4,6 +4,8 @@ namespace Geocoding\Infrastructure\Repositories;
 
 use Geocoding\Domain\Address;
 use Geocoding\Domain\AddressDataRepositoryInterface;
+use Geocoding\Domain\DataStructures\LatLongStruct;
+use Geocoding\Domain\LatLong;
 use Geocoding\Infrastructure\Config\GeocodingConfig;
 
 /**
@@ -38,7 +40,7 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
      *
      * @return array
      */
-    public function fetchAddressCoordinates(Address $address) : array
+    public function fetchAddressCoordinates(Address $address) : LatLong
     {
         $ch = curl_init();
 
@@ -50,6 +52,13 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
 
         curl_close($ch);
 
-        return json_decode($serverResponse, true);
+        $responseData = json_decode($serverResponse, true);
+
+        $coordinatesArray = $responseData['result']['addressMatches'][0]['coordinates'];
+
+        $latitude = $coordinatesArray['x'];
+        $longitude = $coordinatesArray['y'];
+
+        return new LatLong(latitude: $latitude, longitude: $longitude);
     }
 }
