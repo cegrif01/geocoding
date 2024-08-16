@@ -14,7 +14,18 @@ class Address
                                 string $street,
                                 string $zip)
     {
+        //validate the input
         $this->addressStruct = new AddressStruct($country, $city, $state, $street, $zip);
+    }
+
+    public function updateCity(string $city) : Address
+    {
+         return new Address($this->addressStruct->country,
+                            $city,
+                            $this->addressStruct->state,
+                            $this->addressStruct->street,
+                            $this->addressStruct->zip,
+        );
     }
 
     public function getFullAddress() : string

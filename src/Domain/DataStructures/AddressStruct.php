@@ -22,6 +22,4 @@ class AddressStruct
         $this->street = $street;
         $this->zip = $zip;
     }
-
-
 }
