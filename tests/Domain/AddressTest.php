@@ -30,6 +30,4 @@ class AddressTest extends TestCase
 
         $this->assertEquals($address->getUrlEncodedFullAddress(), '100%20Joe%20Nuxhall%20Way%2C%20Cincinnati%2C%20OH%2045202');
     }
-
-
 }

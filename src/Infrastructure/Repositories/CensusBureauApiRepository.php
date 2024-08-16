@@ -38,6 +38,8 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
      * Hits the geolocation api with an address and returns json response
      * of the request
      *
+     * todo break this function up
+     *
      * @return array
      */
     public function fetchAddressCoordinates(Address $address) : LatLong

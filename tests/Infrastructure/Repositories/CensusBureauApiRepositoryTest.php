@@ -61,10 +61,10 @@ class CensusBureauApiRepositoryTest extends TestCase
     {
 
         $redsStadiumAddress = new Address(country: 'USA',
-            city: 'Cincinnati',
-            state: 'OH',
-            street: '100 Joe Nuxhall Way',
-            zip: '45202');
+                                          city: 'Cincinnati',
+                                          state: 'OH',
+                                          street: '100 Joe Nuxhall Way',
+                                          zip: '45202');
 
         $censusBureauApi = new CensusBureauApiRepository(GeocodingConfig::make());
 
@@ -81,10 +81,10 @@ class CensusBureauApiRepositoryTest extends TestCase
         $censusBureauApi = new CensusBureauApiRepository(GeocodingConfig::make());
 
         $redsStadiumAddress = new Address(country: 'USA',
-            city: 'Cincinnati',
-            state: 'OH',
-            street: '100 Joe Nuxhall Way',
-            zip: '45202');
+                                          city: 'Cincinnati',
+                                          state: 'OH',
+                                          street: '100 Joe Nuxhall Way',
+                                          zip: '45202');
 
         $latLong = $censusBureauApi->fetchAddressCoordinates($redsStadiumAddress);
 

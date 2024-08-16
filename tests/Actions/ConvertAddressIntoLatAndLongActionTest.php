@@ -29,7 +29,5 @@ class ConvertAddressIntoLatAndLongActionTest extends TestCase
             $addressConverterAction($redsStadiumAddress),
             new LatLong(latitude: '-84.508275514299', longitude: '39.096122125056')
         );
-
     }
-
 }
