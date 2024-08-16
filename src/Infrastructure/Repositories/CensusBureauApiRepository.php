@@ -4,7 +4,6 @@ namespace Geocoding\Infrastructure\Repositories;
 
 use Geocoding\Domain\Address;
 use Geocoding\Domain\AddressDataRepositoryInterface;
-use Geocoding\Domain\DataStructures\LatLongStruct;
 use Geocoding\Domain\LatLong;
 use Geocoding\Infrastructure\Config\GeocodingConfig;
 

@@ -22,5 +22,4 @@ class ConvertAddressIntoLatAndLongAction
     {
         return $this->addressDataRepository->fetchAddressCoordinates($address);
     }
-
 }

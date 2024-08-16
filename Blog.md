@@ -243,3 +243,224 @@ interface AddressDataRepositoryInterface
 }
 ```
 
+Congratulations we are done with the Domain layer.  Let's move on to the Infrastructure layer now.
+
+The config will look a bit weird so let me explain. We are using raw PHP.  I try my hardest to not couple simple packages
+to frameworks.  It can be easy to get bogged down in the latest breaking changes in Laravel, Symfony, or CakePHP.  When I go to
+github to find a PHP package, 8/10 of them are outdated and no good because it's coupled to an older version of Laravel.  I know I could
+have just installed the Config package from Laravel and that would probably be the way you'd do it.  In those rare cases when I don't want
+to use a bunch of libraries, here's a clever way to tie config values to a single class.  Of course this is immutable because I never want
+my config to change from underneath me.
+
+```
+<?php
+
+namespace Geocoding\Infrastructure\Config;
+
+class GeocodingConfig
+{
+    public readonly string $censusBureauUrl;
+
+    public readonly string $censusBureauAddressGetParam;
+
+    public readonly string $censusBureauBenchMarkParam;
+
+    public readonly string $censusBureauBenchMarkFormat;
+
+    private function __construct(string $censusBureauUrl,
+                                 string $censusBureauAddressGetParam,
+                                 string $censusBureauBenchMarkParam,
+                                 string $censusBureauBenchMarkFormat)
+    {
+        $this->censusBureauUrl = $censusBureauUrl;
+        $this->censusBureauAddressGetParam = $censusBureauAddressGetParam;
+        $this->censusBureauBenchMarkParam = $censusBureauBenchMarkParam;
+        $this->censusBureauBenchMarkFormat = $censusBureauBenchMarkFormat;
+    }
+
+    public static function make(string $censusBureauUrl = 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress',
+                                string $censusBureauAddressGetParam = 'address',
+                                string $censusBureauBenchMarkParam = '4',
+                                string $censusBureauBenchMarkFormat = 'json')  : static
+    {
+        return new static($censusBureauUrl,
+                          $censusBureauAddressGetParam,
+                          $censusBureauBenchMarkParam,
+                          $censusBureauBenchMarkFormat);
+    }
+}
+```
+
+So I can just load my config by running
+
+```
+    //because we have default values already set, we can just call the make() method without parameters.
+    //this really comes in handy
+    Geoconfig::make();
+```
+
+and now I have a config object where I can access all it's values in one place. If you want to have a mock api for tests, you can add
+a static method called test() with different parameters.  This allows you to encapsulate different configurations for different environments
+on command.
+
+Now moving on to the actual repository where the meat and potatoes of the application reside.  A wise coder once said (paraphrasing) "Abstraction is the art of deferring details".
+That's a lot of setup to just hit a GET request on a REST api.  As applications grow in scope and data, this structure adds sanity to your life!  Most experienced developers would agree.
+
+```
+<?php
+
+namespace Geocoding\Infrastructure\Repositories;
+
+use Geocoding\Domain\Address;
+use Geocoding\Domain\AddressDataRepositoryInterface;
+use Geocoding\Domain\LatLong;
+use Geocoding\Infrastructure\Config\GeocodingConfig;
+
+/**
+ * This class is responsible for hitting the Census Bureau api and returning
+ * the json response of the data we will use
+ */
+
+//vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiRepositoryTest.php
+class CensusBureauApiRepository implements AddressDataRepositoryInterface
+{
+    public GeocodingConfig $geocodingConfig;
+
+    public function __construct(GeocodingConfig $geocodingConfig)
+    {
+        $this->geocodingConfig = $geocodingConfig;
+    }
+
+    public function generateUrlFromAddress(Address $address) : string
+    {
+        $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
+        $addressGetParam = '?'. $this->geocodingConfig->censusBureauAddressGetParam. '=';
+        $encodedAddress = $address->getUrlEncodedFullAddress() . '&';
+        $benchMark = 'benchmark='. $this->geocodingConfig->censusBureauBenchMarkParam . '&';
+        $format = 'format='. $this->geocodingConfig->censusBureauBenchMarkFormat;
+
+        return $geocodeUrl. $addressGetParam. $encodedAddress. $benchMark. $format;
+    }
+
+    /**
+     * Hits the geolocation api with an address and returns json response
+     * of the request
+     *
+     * todo break this function up
+     *
+     * @return array
+     */
+    public function fetchAddressCoordinates(Address $address) : LatLong
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->generateUrlFromAddress($address));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $serverResponse = curl_exec($ch);
+
+        curl_close($ch);
+
+        $responseData = json_decode($serverResponse, true);
+
+        $coordinatesArray = $responseData['result']['addressMatches'][0]['coordinates'];
+
+        $latitude = $coordinatesArray['x'];
+        $longitude = $coordinatesArray['y'];
+
+        return new LatLong(latitude: $latitude, longitude: $longitude);
+    }
+}
+```
+
+Since this repository implements our AddressDataRepositoryInterface, we need a fetchAddressCoordinates(Address $address) : LatLong
+method.  So you can see that's been added. Repositories hide some of the ugliest code in our applications.  For example:
+
+```
+$coordinatesArray = $responseData['result']['addressMatches'][0]['coordinates'];
+
+$latitude = $coordinatesArray['x'];
+$longitude = $coordinatesArray['y'];
+```
+
+That's ugly and can easily change if the Census Bureau updates it's api later.  However, we are given a "bench mark" number that defines
+the structure of the data.  If they don't follow this convention on their end and the structure of the data changes and breaks our application,
+we only have to look in one place.
+
+Why use curl instead of a package like Guzzle? You might ask.  As explained in the section about the GeocodingConfig class,
+Guzzle adds another dependency to our relatively small codebase. In my experience, the fewer composer dependencies the better. This is worth it, if I'm using POST, PUT, or DELETE endpoints.  However, in this case
+since it's just a GET request we can knock this out using the PHP curl library.
+
+One code smell that I see is
+
+```
+    public function generateUrlFromAddress(Address $address) : string
+    {
+        $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
+        $addressGetParam = '?'. $this->geocodingConfig->censusBureauAddressGetParam. '=';
+        $encodedAddress = $address->getUrlEncodedFullAddress() . '&';
+        $benchMark = 'benchmark='. $this->geocodingConfig->censusBureauBenchMarkParam . '&';
+        $format = 'format='. $this->geocodingConfig->censusBureauBenchMarkFormat;
+
+        return $geocodeUrl. $addressGetParam. $encodedAddress. $benchMark. $format;
+    }
+```
+
+I think this is a great opportunity for a refactoring so let's do that.
+
+todo (perform the refactoring)
+
+```
+
+```
+
+Now let's go the Actions/Services directory.  Some developers use Actions others call it Services.  That's up to you.
+I personally like Actions because of it's name and purpose.  Actions/Services, combine the repositories, domain models
+and any other helper functions to perform "the thing".  In this case, remember "the thing" is to convert an
+address into a latitude and longitude.  In the next article, we will take two sets of coordinates (lat/long) and
+return the distance between them.  For now we need to convert the address into a lat/long. Repositories only exist to be used by Services/Actions, so they will always
+be composed of the repository.  We will pass in an AddressDataRepositoryInterface instead of the concrete
+implementation of CensusBureauApiRepository.  The way we go about getting lat/long could change.  There are hundreds if not thousands
+of apis that offer this service.
+
+```
+<?php
+
+namespace Geocoding\Actions;
+
+use Geocoding\Domain\Address;
+use Geocoding\Domain\AddressDataRepositoryInterface;
+use Geocoding\Domain\LatLong;
+use Geocoding\Infrastructure\Repositories\CensusBureauApiRepository;
+
+//vendor/bin/phpunit tests/Actions/ConvertAddressIntoLatAndLongActionTest.php
+class ConvertAddressIntoLatAndLongAction
+{
+    /** @var CensusBureauApiRepository  */
+    private AddressDataRepositoryInterface $addressDataRepository;
+
+    public function __construct(AddressDataRepositoryInterface $addressDataRepository)
+    {
+        $this->addressDataRepository = $addressDataRepository;
+    }
+
+    public function __invoke(Address $address) : LatLong
+    {
+        return $this->addressDataRepository->fetchAddressCoordinates($address);
+    }
+}
+```
+
+The other reason our Actions/Services classes encapsulate the repositories is we might want to use
+Actions/Services to be used in another module within our codebase.  It's important we don't access
+Domain Logic or Infrastructure details from another module.  It must go through our Actions/Services
+first.  So they act as a gate keeper for a module of code.  This will make a lot more sense
+when we add the distance features in the next article.
+
+This is all for now, but let's recap.
+(write recap)
+
+
+In the next article we will continue to solve part 2.  We will take two LatLong classes and find the 
+distance between them.
