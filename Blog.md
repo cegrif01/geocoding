@@ -415,7 +415,7 @@ todo (perform the refactoring)
 
 ```
 
-Now let's go the Actions/Services directory.  Some developers use Actions others call it Services.  That's up to you.
+Now let's go the Actions/Services directory.  Some developers call them Actions others call them Services.  That's up to you.
 I personally like Actions because of it's name and purpose.  Actions/Services, combine the repositories, domain models
 and any other helper functions to perform "the thing".  In this case, remember "the thing" is to convert an
 address into a latitude and longitude.  In the next article, we will take two sets of coordinates (lat/long) and
