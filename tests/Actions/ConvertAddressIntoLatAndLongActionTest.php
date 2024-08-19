@@ -5,6 +5,7 @@ namespace Tests\Actions;
 use Geocoding\Domain\LatLong;
 use Geocoding\Infrastructure\Config\GeocodingConfig;
 use Geocoding\Infrastructure\Repositories\CensusBureauApiRepository;
+use Geocoding\Infrastructure\Utils\GenerateUrlFromAddress;
 use PHPUnit\Framework\TestCase;
 use Geocoding\Domain\Address;
 use Geocoding\Actions\ConvertAddressIntoLatAndLongAction;
@@ -23,7 +24,7 @@ class ConvertAddressIntoLatAndLongActionTest extends TestCase
                                           zip: '45202');
 
         /** @var ConvertAddressIntoLatAndLongAction $addressConverter */
-        $addressConverterAction = (new ConvertAddressIntoLatAndLongAction(new CensusBureauApiRepository(GeocodingConfig::make())));
+        $addressConverterAction = (new ConvertAddressIntoLatAndLongAction(new CensusBureauApiRepository(new GenerateUrlFromAddress(GeocodingConfig::make()))));
 
         $this->assertEquals(
             $addressConverterAction($redsStadiumAddress),

@@ -412,7 +412,89 @@ I think this is a great opportunity for a refactoring so let's do that.
 todo (perform the refactoring)
 
 ```
+<?php
 
+namespace Geocoding\Infrastructure\Utils;
+
+use Geocoding\Domain\Address;
+use Geocoding\Infrastructure\Config\GeocodingConfig;
+
+class GenerateUrlFromAddress
+{
+    public GeocodingConfig $geocodingConfig;
+
+    public function __construct(GeocodingConfig $geocodingConfig)
+    {
+        $this->geocodingConfig = $geocodingConfig;
+    }
+
+    public function getUrl(Address $address) : string
+    {
+        $geocodeUrl = $this->geocodingConfig->censusBureauUrl;
+        $addressGetParam = '?'. $this->geocodingConfig->censusBureauAddressGetParam. '=';
+        $encodedAddress = $address->getUrlEncodedFullAddress() . '&';
+        $benchMark = 'benchmark='. $this->geocodingConfig->censusBureauBenchMarkParam . '&';
+        $format = 'format='. $this->geocodingConfig->censusBureauBenchMarkFormat;
+
+        return $geocodeUrl. $addressGetParam. $encodedAddress. $benchMark. $format;
+    }
+}
+```
+
+Now you can use DI to inject that class into CensusBureauApiRepository
+
+```
+<?php
+
+namespace Geocoding\Infrastructure\Repositories;
+
+use Geocoding\Domain\Address;
+use Geocoding\Domain\AddressDataRepositoryInterface;
+use Geocoding\Domain\LatLong;
+use Geocoding\Infrastructure\Utils\GenerateUrlFromAddress;
+
+/**
+ * This class is responsible for hitting the Census Bureau api and returning
+ * the json response of the data we will use
+ */
+
+//vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiRepositoryTest.php
+class CensusBureauApiRepository implements AddressDataRepositoryInterface
+{
+
+    public GenerateUrlFromAddress $generateUrlFromAddress;
+
+    public function __construct(GenerateUrlFromAddress $generateUrlFromAddress)
+    {
+        $this->generateUrlFromAddress = $generateUrlFromAddress;
+    }
+
+    /**
+     * Hits the geolocation api with an address and returns json response
+     * of the request
+     */
+    public function fetchAddressCoordinates(Address $address) : LatLong
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->generateUrlFromAddress->getUrl($address));
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $serverResponse = curl_exec($ch);
+
+        curl_close($ch);
+
+        $responseData = json_decode($serverResponse, true);
+
+        $coordinatesArray = $responseData['result']['addressMatches'][0]['coordinates'];
+
+        $latitude = $coordinatesArray['x'];
+        $longitude = $coordinatesArray['y'];
+
+        return new LatLong(latitude: $latitude, longitude: $longitude);
+    }
+}
 ```
 
 Now let's go the Actions/Services directory.  Some developers call them Actions others call them Services.  That's up to you.
@@ -455,7 +537,7 @@ class ConvertAddressIntoLatAndLongAction
 The other reason our Actions/Services classes encapsulate the repositories is we might want to use
 Actions/Services to be used in another module within our codebase.  It's important we don't access
 Domain Logic or Infrastructure details from another module.  It must go through our Actions/Services
-first.  So they act as a gate keeper for a module of code.  This will make a lot more sense
+first.  So they act as a gatekeeper for a module of code.  This will make a lot more sense
 when we add the distance features in the next article.
 
 This is all for now, but let's recap.
