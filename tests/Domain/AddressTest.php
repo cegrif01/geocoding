@@ -42,7 +42,5 @@ class AddressTest extends TestCase
             state: 'OH',
             street: 'Joe Nuxhall Way',
             zip: '45202');
-
-
     }
 }

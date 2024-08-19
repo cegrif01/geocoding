@@ -5,6 +5,7 @@ namespace Geocoding\Domain;
 use Geocoding\Domain\DataStructures\AddressStruct;
 use Geocoding\Domain\Exceptions\InvalidAddressException;
 
+//vendor/bin/phpunit tests/Domain/AddressTest.php
 class Address
 {
     public readonly AddressStruct $addressStruct;
@@ -18,43 +19,40 @@ class Address
                                 string $street,
                                 string $zip)
     {
-        /** @throws InvalidAddressException */
-        $this->validate($country, $city, $state, $street, $zip);
-
         $this->addressStruct = new AddressStruct($country, $city, $state, $street, $zip);
+
+        /** @throws InvalidAddressException */
+        $this->validate();
     }
 
     /**
      * @throws InvalidAddressException
      */
-    private function validate(string $country,
-                              string $city,
-                              string $state,
-                              string $street,
-                              string $zip) : void
+    private function validate() : void
     {
 
-        if(!preg_match('/[a-zA-Z ]+/',$country)) {
-            throw new InvalidAddressException($country. ' is not a valid country');
+        if(!preg_match('/[a-zA-Z ]+/', $this->addressStruct->country)) {
+            throw new InvalidAddressException($this->addressStruct->country. ' is not a valid country');
         }
 
-        if(!preg_match('/[\d]+ [a-zA-Z ]+/',$street)) {
-            throw new InvalidAddressException($street. ' is not a valid street');
+        if(!preg_match('/[\d]+ [a-zA-Z ]+/',$this->addressStruct->street)) {
+            throw new InvalidAddressException($this->addressStruct->street. ' is not a valid street');
         }
 
-        if(!preg_match('/[a-zA-Z ]+/',$city)) {
-            throw new InvalidAddressException($city. ' is not a valid city');
+        if(!preg_match('/[a-zA-Z ]+/',$this->addressStruct->city)) {
+            throw new InvalidAddressException($this->addressStruct->city. ' is not a valid city');
         }
 
-        if(!preg_match('/[a-zA-Z ]+/',$state)) {
-            throw new InvalidAddressException($state. ' is not a valid state');
+        if(!preg_match('/[a-zA-Z ]+/',$this->addressStruct->state)) {
+            throw new InvalidAddressException($this->addressStruct->state. ' is not a valid state');
         }
 
-        if(!preg_match('/[\d]{5}(-[\d]{4})?/',$zip)) {
-            throw new InvalidAddressException($zip.  ' is not a valid zip code');
+        if(!preg_match('/[\d]{5}(-[\d]{4})?/',$this->addressStruct->zip)) {
+            throw new InvalidAddressException($this->addressStruct->zip.  ' is not a valid zip code');
         }
     }
 
+    //example of an immutable setter
     public function setCity(string $city) : Address
     {
          return new Address($this->addressStruct->country,
