@@ -21,7 +21,6 @@ class Address
     {
         $this->addressStruct = new AddressStruct($country, $city, $state, $street, $zip);
 
-        /** @throws InvalidAddressException */
         $this->validate();
     }
 

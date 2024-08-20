@@ -1,3 +1,136 @@
+In this 2 part tutorial serious, we will build a software package that uses an api to take two addresses and determine the distance apart.  This can be used in a variety of applications.  For example, determining the optimal distance in a region for a door to door sales team to travel between locations on foot.
+
+For part 1 we will focus on converting address into Latitude and Longitude.  For part 2, we will take two Latitude and Longitude
+and convert them to a distance in miles or kilometers.
+
+We could use the GoogleMaps™ api to take two addresses and determine the latitude and longitude.  It could also tell us the distance between the two locations.
+
+For determining the distance between the two addresses, there are handy distance functions that can convert a Lat/Long into a distance.
+If we ever find out the earth is flat for some reason, then these functions are totally wrong.  Fingers crossed.
+
+First, let’s find the api for converting addresses into Lat/Long.   I want the repo to be compatible with most versions of php.  So we will use PHP 8.1 for this.
+At the time of this writing, php8.3 is out, but I will use the version below that one (8.1) so it can be used just in case you haven’t updated yet.
+Having worked on several projects for clients, I have noticed it's rare when they are on the bleeding edge version of php.
+I will use some unique concepts throughout, but don’t worry, I’ll take the time to explain.  You can check out the github repository here: https://github.com/cegrif01/geocoding.
+
+You can download the repository locally.  I suggest you follow along.
+
+```
+git clone git@github.com:cegrif01/geocoding.git
+
+```
+
+We will ensure compliance with the PSR-4 standard.
+
+We will use the free api from the good ol’ Census Bereau!  Yes, you can use their api for free (at the time of this blog).
+Go to: https://geocoding.geo.census.gov/.  The documentation for their api is here: https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html
+
+Lets go to Red’s stadium for some baseball and then head to Bonaroo for a music festival.  The address to Reds stadium and Bonnaroo, respectively are as follows:
+
+Reds stadium
+100 Joe Nuxhall Way, Cincinnati, OH 45202
+
+
+Bonnaroo
+1560 New Bushy Branch Rd, Manchester, TN 37355, United States
+
+
+We can go to the census bureau website with the Reds address:
+
+https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=100%20Joe%20Nuxhall%20Way%2C%20Cincinnati%2C%20OH%2045202-5108&benchmark=4&format=json
+
+```
+{
+"result": {
+"input": {
+"address": {
+"address": "100 Joe Nuxhall Way, Cincinnati, OH 45202-5108"
+},
+"benchmark": {
+"isDefault": true,
+"benchmarkDescription": "Public Address Ranges - Current Benchmark",
+"id": "4",
+"benchmarkName": "Public_AR_Current"
+}
+},
+"addressMatches": [
+{
+"tigerLine": {
+"side": "L",
+"tigerLineId": "647384196"
+},
+"coordinates": {
+"x": -84.50827551429869,
+"y": 39.09612212505558
+},
+"addressComponents": {
+"zip": "45202",
+"streetName": "JOE NUXHALL",
+"preType": "",
+"city": "CINCINNATI",
+"preDirection": "",
+"suffixDirection": "",
+"fromAddress": "198",
+"state": "OH",
+"suffixType": "WAY",
+"toAddress": "100",
+"suffixQualifier": "",
+"preQualifier": ""
+},
+"matchedAddress": "100 JOE NUXHALL WAY, CINCINNATI, OH, 45202"
+}
+]
+}
+}
+```
+
+The link for Bonnaroo:
+https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=1560%20New%20Bushy%20Branch%20Rd%2C%20Manchester%2C%20TN%2037355%2C%20United%20States&benchmark=4&format=json
+
+```
+{
+"result": {
+"input": {
+"address": {
+"address": "1560 New Bushy Branch Rd, Manchester, TN 37355, United States"
+},
+"benchmark": {
+"isDefault": true,
+"benchmarkDescription": "Public Address Ranges - Current Benchmark",
+"id": "4",
+"benchmarkName": "Public_AR_Current"
+}
+},
+"addressMatches": [
+{
+"tigerLine": {
+"side": "L",
+"tigerLineId": "654037877"
+},
+"coordinates": {
+"x": -86.05012799570659,
+"y": 35.478336774833565
+},
+"addressComponents": {
+"zip": "37355",
+"streetName": "NEW BUSHY BRANCH",
+"preType": "",
+"city": "MANCHESTER",
+"preDirection": "",
+"suffixDirection": "",
+"fromAddress": "1598",
+"state": "TN",
+"suffixType": "RD",
+"toAddress": "1334",
+"suffixQualifier": "",
+"preQualifier": ""
+},
+"matchedAddress": "1560 NEW BUSHY BRANCH RD, MANCHESTER, TN, 37355"
+}
+]
+}
+}
+```
 
 I’m actually quite astonished that this is free!  Almost seems too good to be true.  Let’s write this api using php.  We don’t want to couple the functionality to a particular framework.
 
@@ -9,32 +142,89 @@ geocoding
 ├── composer.json
 ├── LICENSE
 ├── README.md
+│
+└── public
+│       └── index.php (includes the composer autoloader)
+│
 └── src
+        ├── Actions
+        │     └── ConvertAddressIntoLatAndLongAction.php
+        ├── Domain
+        │     └── DataStructures
+        │              └── AddressStruct.php
+        │              └── LatLongStruct.php
+        │     └── Address.php
+        │     └── LatLong.php
+        │     └── AddressDataRepositoryInterface.php
+        │      
+        └── Infrastructure
+               └── Config
+                       └── GeocodingConfig.php
+               └── Repositories
+                       └── CensusBureauApiRepository.php
+└── tests
     ├── Actions
-    │     └── ConvertAddressIntoLatAndLongAction.php
+    │     └── ConvertAddressIntoLatAndLongActionTest.php
     ├── Domain
-    │     └── DataStructures
-    │              └── AddressStruct.php
-    │              └── LatLongStruct.php
-    │     └── Address.php
-    │     └── LatLong.php
-    │     └── AddressDataRepositoryInterface.php
+    │     └── AddressTest.php
+    │     └── LatLongTest.php
     │      
     └── Infrastructure
-           └── Config
-                   └── GeocodingConfig.php
            └── Repositories
-                   └── CensusBureauApiRepository.php
+                   └── CensusBureauApiRepositoryTest.php
 ```
 
-Let's discuss each of these files/directories in detail.
+Let's discuss each of these files/directories in detail.  You can observe the unit tests in the repository: https://github.com/cegrif01/geocoding.
+The composer.json is where the dependencies are found.  I installed a phpunit version that's compatible with php8.1.  I also like the debugging function
+```dd()```.  It's a useful part of the laravel tools, so we added that one too.
+
+The composer.json file should look like the following:
+
+```
+{
+"name": "cegrif01/geocoding",
+"description": "Uses the census bureau's api to convert addresses into latitude and longitude",
+"keywords": ["latitude", "longitude", "address"],
+"type": "library",
+"license": "MIT",
+"authors": [
+{
+"name": "Chazbit",
+"email": "charles@chazbit.com"
+}
+],
+"autoload": {
+"psr-4": {
+"Geocoding\\": "src/"
+}
+},
+"require": {
+"php" : "~8.1",
+"larapack/dd": "1.1"
+},
+"require-dev": {
+"phpunit/phpunit": "~10.5.30"
+},
+
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
+
+```
 
 First we'll start with the Domain directory.  I like to use datastructures because they are more descriptive than PHP arrays.
 At the time of this writing, C# and Java both have records which are basically structs (readonly data containers with no actual functionality).  I started my career as an embedded
-C programmer so the concept of using structs feels natural for me.  Even if you don't like the idea of structs, they play
-more of a background role in this software package.  It's a great way to figure out what data is needed.
+C programmer so the concept of using structs feels more natural for me.  Even if you don't like the idea of structs, they play
+more of a background role in this software package.  It's a great way to figure out what data is needed.  It also separates data from functionality.
 
-AddressStruct or AddressRecord:
+
+All the fields are readonly because we want our structs (or records) to be immutable.  If this needs to be modified, we will instantiate
+a new copy of this struct and return it.
+
+AddressStruct (or you could name it AddressRecord):
 
 ```
 <?php
@@ -64,9 +254,6 @@ class AddressStruct
 }
 ```
 
-All the fields are readonly because we want our structs (or records) to be immutable.  If this needs to be modified, we will instantiate
-a new copy of this struct and return it.
-
 LatLongStruct or LatLongRecord
 
 ```
@@ -89,8 +276,8 @@ class LatLongStruct
 }
 ```
 
-Since we don't have a need for persistence, we don't have "entities".  We instead have value objects.
-Let's create them so we can make sense of these structs we just created.
+Since we don't have a need for persistence, we don't have "entities".  These domain models don't have an id so their equality is purely determined on their properties.
+That makes these domain models value objects. Let's create them so we can make sense of how to use these structs we just created.
 
 Address.php
 
@@ -138,7 +325,7 @@ class LatLong
 }
 ```
 
-Each one of these value objects will validate the input before setting.  Value objects and entities should always be in a valid state.
+Each one of these value objects will validate the input before setting.  We will add validation later.  Value objects and entities should always be in a valid state.
 When we need functionality that modifies one of these value objects, then we can create a method that returns a new underlying datastructure.
 For example if we want to update the city, we can put this method in the Address class.
 
@@ -181,7 +368,7 @@ $addressReturnedFromService = $this->serviceClass->someMethodThatChangesCity($ad
 
 
 $addressReturnedFromService->equals($address1); //returns true
-$adress1->equals($address2); //returns false
+$adress1->equals($address2); //returns false because we mutated $address1 directly
 
 ```
 
