@@ -6,6 +6,7 @@ use Geocoding\Domain\Address;
 use Geocoding\Domain\LatLong;
 use Geocoding\Infrastructure\Config\GeocodingConfig;
 use Geocoding\Infrastructure\Repositories\CensusBureauApiRepository;
+use Geocoding\Infrastructure\Utils\GenerateUrlFromAddress;
 use PHPUnit\Framework\TestCase;
 
 //vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiRepositoryTest.php
@@ -57,28 +58,10 @@ class CensusBureauApiRepositoryTest extends TestCase
             ]
         ];
     }
-    public function test_generates_correct_url_from_config()
-    {
-
-        $redsStadiumAddress = new Address(country: 'USA',
-                                          city: 'Cincinnati',
-                                          state: 'OH',
-                                          street: '100 Joe Nuxhall Way',
-                                          zip: '45202');
-
-        $censusBureauApi = new CensusBureauApiRepository(GeocodingConfig::make());
-
-        $generatedUrl = $censusBureauApi->generateUrlFromAddress($redsStadiumAddress);
-
-        $this->assertEquals(
-            expected: $generatedUrl,
-            actual: 'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=100%20Joe%20Nuxhall%20Way%2C%20Cincinnati%2C%20OH%2045202&benchmark=4&format=json'
-        );
-    }
 
     public function test_census_bureau_api_returns_correct_json_response()
     {
-        $censusBureauApi = new CensusBureauApiRepository(GeocodingConfig::make());
+        $censusBureauApi = new CensusBureauApiRepository(new GenerateUrlFromAddress(GeocodingConfig::make()));
 
         $redsStadiumAddress = new Address(country: 'USA',
                                           city: 'Cincinnati',
