@@ -11,12 +11,12 @@ If we ever find out the earth is flat for some reason, then these functions are 
 First, let’s find the api for converting addresses into Lat/Long.   I want the repo to be compatible with most versions of php.  So we will use PHP 8.1 for this.
 At the time of this writing, php8.3 is out, but I will use the version below that one (8.1) so it can be used just in case you haven’t updated yet.
 Having worked on several projects for clients, I have noticed it's rare when they are on the bleeding edge version of php.
-I will use some unique concepts throughout, but don’t worry, I’ll take the time to explain.  You can check out the github repository here: https://github.com/cegrif01/geocoding.
+I will use some unique concepts throughout, but don’t worry, I’ll take the time to explain.  You can check out the github repository here: https://github.com/chazbit/geocoding.
 
 You can download the repository locally.  I suggest you follow along.
 
 ```
-git clone git@github.com:cegrif01/geocoding.git
+git clone git@github.com:chazbit/geocoding.git
 
 ```
 
@@ -174,7 +174,7 @@ geocoding
                    └── CensusBureauApiRepositoryTest.php
 ```
 
-Let's discuss each of these files/directories in detail.  You can observe the unit tests in the repository: https://github.com/cegrif01/geocoding.
+Let's discuss each of these files/directories in detail.  You can observe the unit tests in the repository: https://github.com/chazbit/geocoding.
 The composer.json is where the dependencies are found.  I installed a phpunit version that's compatible with php8.1.  I also like the debugging function
 ```dd()```.  It's a useful part of the laravel tools, so we added that one too.
 
@@ -182,7 +182,7 @@ The composer.json file should look like the following:
 
 ```
 {
-"name": "cegrif01/geocoding",
+"name": "chazbit/geocoding",
 "description": "Uses the census bureau's api to convert addresses into latitude and longitude",
 "keywords": ["latitude", "longitude", "address"],
 "type": "library",
@@ -959,7 +959,7 @@ This is all for now, but let's recap.
 (todo write recap)
 
 In this tutorial, we leveraged the power of DDD to solve a meaningful problem.  This tutorial will also be on my github repo
-```https://github.com/cegrif01/geocoding``` (todo make a link).  We started off by building our domain models, which in this case
+```https://github.com/chazbit/geocoding``` (todo make a link).  We started off by building our domain models, which in this case
 was just two value objects: Address and LatLong.  We used the repository pattern to encapsulate the complex details
 of dealing with the Census Bureau Api that handles curl interaction.  We used a config file GeocodingConfig that has a
 static helper method called make() that will use it's config defaults without the client (the consumer of the config api) having to instantiate it.
