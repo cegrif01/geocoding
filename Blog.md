@@ -404,16 +404,17 @@ $adress1->equals($address2); //returns true
 If you don't understand why this is a big deal, then please, take the time to break this apart using various examples. This is an extremely important principle
 that I feel like less experienced software developers miss.
 
-Let's move on to the RepositoryInterface we created.  This interface belongs in our domain.  It describes how the outside world
-will use our domain models.  This should always receive domain models and/or return domain models.  In this case, the "outside world"
+Let's move on to the RepositoryInterface we created.  This interface belongs in our domain.  It describes how the world outside of the domain
+will utilize our domain models.  This should always receive domain models and/or return domain models.  In this case, the "outside world"
 is the REST api offered by the Census Bureau.  When I first learned Domain Driven Design, I was confused as to why the Repository interfaces
-were in the domain itself and not in the repositories folder.  Think of it this way... when you're designing the application
+were in the domain itself and not in the repositories folder.  Think of it this way... when you're designing the system,
 domain models need be used somehow by some type of external process.  We either want to write it to a file, save it to a database, or -- in this particular case -- use
-it to consume the correct API endpoints.  The objective of this project is to take an address and convert it into latitude and longitude.
+it to consume the correct API endpoints.  The objective of this project is to take an address and convert it into latitude and longitude, which means, we will need to read
+from an external source.  The parameter passed in will be our Address class. The return type of the source would be our LatLong class.
 
-Another thing to take into consideration is that the Census Bureau may charge us for this service one day and it might be more cost
-effective to use another way to perform the main objective.  Hence the RepositoryInterface.  In other words, a the RepositoryInterface means 
-"I don't know how we're gonna get it done, but we are gonna get er' done".
+Another thing to take into consideration is that the Census Bureau may charge us for this service one day it might be more cost-effective to use another way to perform the main objective.
+Hence the RepositoryInterface.  In other words, the RepositoryInterface means "I don't know how we're gonna get it done, but we are gonna get er' done".  We can defer or change
+implementation details as long as we have the correct parameter, and return types.
 
 
 ```
@@ -433,11 +434,11 @@ interface AddressDataRepositoryInterface
 Congratulations we are done with the Domain layer.  Let's move on to the Infrastructure layer now.
 
 The config will look a bit weird so let me explain. We are using raw PHP.  I try my hardest to not couple simple packages
-to frameworks.  It can be easy to get bogged down in the latest breaking changes in Laravel, Symfony, or CakePHP.  When I go to
+to a specific framework.  It can be easy to get bogged down in the latest breaking changes in Laravel, Symfony, or CakePHP.  When I go to
 github to find a PHP package, 8/10 of them are outdated and no good because it's coupled to an older version of Laravel.  I know I could
 have just installed the Config package from Laravel and that would probably be the way you'd do it.  In those rare cases when I don't want
 to use a bunch of libraries, here's a clever way to tie config values to a single class.  Of course this is immutable because I never want
-my config to change from underneath me.
+my config to change it's properties at run time.
 
 ```
 <?php
@@ -571,7 +572,7 @@ $latitude = $coordinatesArray['x'];
 $longitude = $coordinatesArray['y'];
 ```
 
-That's ugly and can easily change if the Census Bureau updates it's api later.  However, we are given a "bench mark" number that defines
+That's ugly and can easily change if the Census Bureau updates it's api later.  However, we are given a "benchmark" number that defines
 the structure of the data.  If they don't follow this convention on their end and the structure of the data changes and breaks our application,
 we only have to look in one place.
 
@@ -688,8 +689,10 @@ Now let's go the Actions/Services directory.  Some developers call them Actions 
 I personally like Actions because of it's name and purpose.  Actions/Services, combine the repositories, domain models
 and any other helper functions to perform "the thing".  In this case, remember "the thing" is to convert an
 address into a latitude and longitude.  In the next article, we will take two sets of coordinates (lat/long) and
-return the distance between them.  For now we need to convert the address into a lat/long. Repositories only exist to be used by Services/Actions, so they will always
-be composed of the repository.  We will pass in an AddressDataRepositoryInterface instead of the concrete
+return the distance between them.  For now, we need to convert the address into a lat/long. 
+
+Repositories only exist to be used by Services/Actions, so they will always be composed of the repository.  We will pass 
+in an AddressDataRepositoryInterface into the constructor of the Action instead of the concrete
 implementation of CensusBureauApiRepository.  The way we go about getting lat/long could change.  There are hundreds if not thousands
 of apis that offer this service.
 
