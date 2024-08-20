@@ -31,4 +31,20 @@ class ConvertAddressIntoLatAndLongActionTest extends TestCase
             new LatLong(latitude: '-84.508275514299', longitude: '39.096122125056')
         );
     }
+
+    public function test_can_convert_address_into_lat_and_long_using_bootable_helper_on_action()
+    {
+        $redsStadiumAddress = new Address(country: 'USA',
+            city: 'Cincinnati',
+            state: 'OH',
+            street: '100 Joe Nuxhall Way',
+            zip: '45202');
+
+        $latLong = ConvertAddressIntoLatAndLongAction::for($redsStadiumAddress);
+
+        $this->assertEquals(
+            $latLong,
+            new LatLong(latitude: '-84.508275514299', longitude: '39.096122125056')
+        );
+    }
 }
