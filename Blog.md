@@ -1,7 +1,7 @@
 
 I’m actually quite astonished that this is free!  Almost seems too good to be true.  Let’s write this api using php.  We don’t want to couple the functionality to a particular framework.
 
-At this point your directory structure should look like the following:
+At this point your directory structure should look like the following.  We will add to this as we go along but this is a good place to start:
 
 ```
 geocoding
@@ -540,9 +540,242 @@ Domain Logic or Infrastructure details from another module.  It must go through 
 first.  So they act as a gatekeeper for a module of code.  This will make a lot more sense
 when we add the distance features in the next article.
 
+
+Let's take the time to go over some pain points and how to fix them.  The first let's address the super awkward calling of 
+the ConvertAddressIntoLatAndLongAction.php class.  In order to instantiate this class, you'll need to do something like this:
+
+```
+        /** @var ConvertAddressIntoLatAndLongAction $addressConverter */
+        $addressConverterAction = (new ConvertAddressIntoLatAndLongAction(new CensusBureauApiRepository(new GenerateUrlFromAddress(GeocodingConfig::make()))));
+```
+
+Let's make this a bit easier.  It would be nice to just use a static method that hides the booting details
+
+```
+<?php
+
+namespace Geocoding\Actions;
+
+use Geocoding\Domain\Address;
+use Geocoding\Domain\AddressDataRepositoryInterface;
+use Geocoding\Domain\LatLong;
+use Geocoding\Infrastructure\Config\GeocodingConfig;
+use Geocoding\Infrastructure\Repositories\CensusBureauApiRepository;
+use Geocoding\Infrastructure\Utils\GenerateUrlFromAddress;
+
+//vendor/bin/phpunit tests/Actions/ConvertAddressIntoLatAndLongActionTest.php
+class ConvertAddressIntoLatAndLongAction
+{
+    /** @var CensusBureauApiRepository  */
+    private AddressDataRepositoryInterface $addressDataRepository;
+
+    public function __construct(AddressDataRepositoryInterface $addressDataRepository)
+    {
+        $this->addressDataRepository = $addressDataRepository;
+    }
+
+    public function __invoke(Address $address) : LatLong
+    {
+        return $this->addressDataRepository->fetchAddressCoordinates($address);
+    }
+
+    /**
+     * Convenient, bootable static method that makes calls to this action painless.
+     */
+    public static function for(Address $address) : LatLong
+    {
+        /** @var ConvertAddressIntoLatAndLongAction $addressConverter */
+        $addressConverterAction = (new ConvertAddressIntoLatAndLongAction(
+                                            new CensusBureauApiRepository(
+                                                new GenerateUrlFromAddress(GeocodingConfig::make()))));
+
+        return $addressConverterAction($address);
+    }
+}
+```
+
+With this refactoring, we could just call ```ConvertAddressIntoLatAndLongAction::for($address);``` this is much easier to deal with.
+In some controller where this might be used, you can just call this statically without having to worry about confusing instantiation.
+
+The other thing we need to do is validate the input coming into our domain models (Address and LatLong).  According to the rules of value objects
+in Domain Driven Design (DDD), we must always have them in a valid state.  So let's modify Address first to validate
+if what's being passed in is a valid address
+
+```
+<?php
+
+namespace Geocoding\Domain;
+
+use Geocoding\Domain\DataStructures\AddressStruct;
+use Geocoding\Domain\Exceptions\InvalidAddressException;
+
+//vendor/bin/phpunit tests/Domain/AddressTest.php
+class Address
+{
+    public readonly AddressStruct $addressStruct;
+
+    /**
+     * @throws InvalidAddressException
+     */
+    public function __construct(string $country,
+                                string $city,
+                                string $state,
+                                string $street,
+                                string $zip)
+    {
+        $this->addressStruct = new AddressStruct($country, $city, $state, $street, $zip);
+
+        /** @throws InvalidAddressException */
+        $this->validate();
+    }
+
+    /**
+     * @throws InvalidAddressException
+     */
+    private function validate() : void
+    {
+
+        if(!preg_match('/[a-zA-Z ]+/', $this->addressStruct->country)) {
+            throw new InvalidAddressException($this->addressStruct->country. ' is not a valid country');
+        }
+
+        if(!preg_match('/[\d]+ [a-zA-Z ]+/',$this->addressStruct->street)) {
+            throw new InvalidAddressException($this->addressStruct->street. ' is not a valid street');
+        }
+
+        if(!preg_match('/[a-zA-Z ]+/',$this->addressStruct->city)) {
+            throw new InvalidAddressException($this->addressStruct->city. ' is not a valid city');
+        }
+
+        if(!preg_match('/[a-zA-Z ]+/',$this->addressStruct->state)) {
+            throw new InvalidAddressException($this->addressStruct->state. ' is not a valid state');
+        }
+
+        if(!preg_match('/[\d]{5}(-[\d]{4})?/',$this->addressStruct->zip)) {
+            throw new InvalidAddressException($this->addressStruct->zip.  ' is not a valid zip code');
+        }
+    }
+
+    public function getFullAddress() : string
+    {
+        return $this->addressStruct->street . ', ' .
+               $this->addressStruct->city . ', '.
+               $this->addressStruct->state . ' '.
+               $this->addressStruct->zip;
+    }
+
+    public function getUrlEncodedFullAddress() : string
+    {
+        return rawurlencode($this->getFullAddress());
+    }
+}
+```
+
+Now for the LatLong value object
+
+```
+<?php
+
+namespace Geocoding\Domain;
+
+use Geocoding\Domain\DataStructures\LatLongStruct;
+use Geocoding\Domain\Exceptions\InvalidLatitudeAndLongitudeException;
+
+//vendor/bin/phpunit tests/Domain/LongLatTest.php
+class LatLong
+{
+    private readonly LatLongStruct $latLongStruct;
+
+    /**
+     * @throws InvalidLatitudeAndLongitudeException
+     */
+    public function __construct(string $latitude, string $longitude)
+    {
+        $this->latLongStruct = new LatLongStruct(latitude: $latitude, longitude: $longitude);
+
+        $this->validate();
+    }
+
+    private function validate()
+    {
+        if(!preg_match('/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/',$this->getLatitude())) {
+            throw new InvalidLatitudeAndLongitudeException($this->getLatitude(). ' is not a valid latitude');
+        }
+
+        if(!preg_match('/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/',$this->getLongitude())) {
+            throw new InvalidLatitudeAndLongitudeException($this->getLongitude(). ' is not a valid longitude');
+        }
+
+        if( !(($this->getLatitude() >= -90) && ($this->getLatitude() <= 90)) ) {
+            throw new InvalidLatitudeAndLongitudeException($this->getLatitude() . ' is an invalid latitude coordinate');
+        }
+
+        if( !(($this->getLongitude() >= -180) && ($this->getLongitude() <= 180)) ) {
+            throw new InvalidLatitudeAndLongitudeException($this->getLongitude() . ' is an invalid longitude coordinate');
+        }
+    }
+
+    public function getLatitude() : string
+    {
+        return $this->latLongStruct->latitude;
+    }
+
+    public function getLongitude() : string
+    {
+        return $this->latLongStruct->longitude;
+    }
+}
+```
+
+These validators are rather complex.  They could be split into a trait, but that's up to you.  I think the point has been made for keeping
+value objects in valid states.  This rule comes in handy when dealing with form validation.  If all of our objects are validated,
+even if you forget a validation rule at the Controller level, the hard work is already done for you.  You can just bubble the exception up to the
+controller and display it to the user.
+
+Now our revised directory structure looks like the following
+
+(todo our revised structure)
+
+```
+geocoding
+|-- .gitignore 
+├── composer.json
+├── LICENSE
+├── README.md
+└── src
+    ├── Actions
+    │     └── ConvertAddressIntoLatAndLongAction.php
+    ├── Domain
+    │     └── DataStructures
+    │              └── AddressStruct.php
+    │              └── LatLongStruct.php
+    │      └── Exceptions
+    │              └── InvalidAddressException.php
+    │              └── InvalidLatitudeAndLongitudeException.php
+    │     └── Address.php
+    │     └── LatLong.php
+    │     └── AddressDataRepositoryInterface.php
+    │      
+    └── Infrastructure
+           └── Config
+                   └── GeocodingConfig.php
+           └── Utils
+                    └── GenerateUrlFromAddress.php
+           └── Repositories
+                   └── CensusBureauApiRepository.php
+```
+
 This is all for now, but let's recap.
-(write recap)
+(todo write recap)
+
+In this tutorial, we leveraged the power of DDD to solve a meaningful problem.  This tutorial will also be on my github repo
+```https://github.com/cegrif01/geocoding``` (todo make a link).  We started off by building our domain models, which in this case
+was just two value objects: Address and LatLong.  We used the repository pattern to encapsulate the complex details
+of dealing with the Census Bureau Api that handles curl interaction.  We used a config file GeocodingConfig that has a
+static helper method called make() that will use it's config defaults without the client (the consumer of the config api) having to instantiate it.
+Finally, we created an Action/Service class called ConvertAddressIntoLatAndLongAction, in our application layer.  This class
+works in conjuction with the CensusBureauApi to return the results in terms of a domain model.  In our case this is the LatLong class.
 
 
 In the next article we will continue to solve part 2.  We will take two LatLong classes and find the 
-distance between them.
+distance between them.  We will also discuss modules... Stay Tuned!
