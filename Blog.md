@@ -47,46 +47,46 @@ https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=100%2
 
 ```
 {
-"result": {
-"input": {
-"address": {
-"address": "100 Joe Nuxhall Way, Cincinnati, OH 45202-5108"
-},
-"benchmark": {
-"isDefault": true,
-"benchmarkDescription": "Public Address Ranges - Current Benchmark",
-"id": "4",
-"benchmarkName": "Public_AR_Current"
-}
-},
-"addressMatches": [
-{
-"tigerLine": {
-"side": "L",
-"tigerLineId": "647384196"
-},
-"coordinates": {
-"x": -84.50827551429869,
-"y": 39.09612212505558
-},
-"addressComponents": {
-"zip": "45202",
-"streetName": "JOE NUXHALL",
-"preType": "",
-"city": "CINCINNATI",
-"preDirection": "",
-"suffixDirection": "",
-"fromAddress": "198",
-"state": "OH",
-"suffixType": "WAY",
-"toAddress": "100",
-"suffixQualifier": "",
-"preQualifier": ""
-},
-"matchedAddress": "100 JOE NUXHALL WAY, CINCINNATI, OH, 45202"
-}
-]
-}
+    "result": {
+        "input": {
+            "address": {
+                "address": "100 Joe Nuxhall Way, Cincinnati, OH 45202-5108"
+            },
+            "benchmark": {
+                "isDefault": true,
+                "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+                "id": "4",
+                "benchmarkName": "Public_AR_Current"
+            }
+        },
+        "addressMatches": [
+            {
+                "tigerLine": {
+                    "side": "L",
+                    "tigerLineId": "647384196"
+                },
+                "coordinates": {
+                    "x": -84.50827551429869,
+                    "y": 39.09612212505558
+                },
+                "addressComponents": {
+                    "zip": "45202",
+                    "streetName": "JOE NUXHALL",
+                    "preType": "",
+                    "city": "CINCINNATI",
+                    "preDirection": "",
+                    "suffixDirection": "",
+                    "fromAddress": "198",
+                    "state": "OH",
+                    "suffixType": "WAY",
+                    "toAddress": "100",
+                    "suffixQualifier": "",
+                    "preQualifier": ""
+                },
+                "matchedAddress": "100 JOE NUXHALL WAY, CINCINNATI, OH, 45202"
+            }
+        ]
+    }
 }
 ```
 
@@ -96,46 +96,46 @@ https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=1560%
 
 ```
 {
-"result": {
-"input": {
-"address": {
-"address": "1560 New Bushy Branch Rd, Manchester, TN 37355, United States"
-},
-"benchmark": {
-"isDefault": true,
-"benchmarkDescription": "Public Address Ranges - Current Benchmark",
-"id": "4",
-"benchmarkName": "Public_AR_Current"
-}
-},
-"addressMatches": [
-{
-"tigerLine": {
-"side": "L",
-"tigerLineId": "654037877"
-},
-"coordinates": {
-"x": -86.05012799570659,
-"y": 35.478336774833565
-},
-"addressComponents": {
-"zip": "37355",
-"streetName": "NEW BUSHY BRANCH",
-"preType": "",
-"city": "MANCHESTER",
-"preDirection": "",
-"suffixDirection": "",
-"fromAddress": "1598",
-"state": "TN",
-"suffixType": "RD",
-"toAddress": "1334",
-"suffixQualifier": "",
-"preQualifier": ""
-},
-"matchedAddress": "1560 NEW BUSHY BRANCH RD, MANCHESTER, TN, 37355"
-}
-]
-}
+    "result": {
+        "input": {
+            "address": {
+                "address": "1560 New Bushy Branch Rd, Manchester, TN 37355, United States"
+            },
+            "benchmark": {
+                "isDefault": true,
+                "benchmarkDescription": "Public Address Ranges - Current Benchmark",
+                "id": "4",
+                "benchmarkName": "Public_AR_Current"
+            }
+        },
+        "addressMatches": [
+            {
+                "tigerLine": {
+                    "side": "L",
+                    "tigerLineId": "654037877"
+                },
+                "coordinates": {
+                    "x": -86.05012799570659,
+                    "y": 35.478336774833565
+                },
+                "addressComponents": {
+                    "zip": "37355",
+                    "streetName": "NEW BUSHY BRANCH",
+                    "preType": "",
+                    "city": "MANCHESTER",
+                    "preDirection": "",
+                    "suffixDirection": "",
+                    "fromAddress": "1598",
+                    "state": "TN",
+                    "suffixType": "RD",
+                    "toAddress": "1334",
+                    "suffixQualifier": "",
+                    "preQualifier": ""
+                },
+                "matchedAddress": "1560 NEW BUSHY BRANCH RD, MANCHESTER, TN, 37355"
+            }
+        ]
+    }
 }
 ```
 
@@ -189,37 +189,39 @@ The composer.json file is where the dependencies are found.  I installed a phpun
 
 ```
 {
-"name": "chazbit/geocoding",
-"description": "Uses the census bureau's api to convert addresses into latitude and longitude",
-"keywords": ["latitude", "longitude", "address"],
-"type": "library",
-"license": "MIT",
-"authors": [
-{
-"name": "Chazbit",
-"email": "charles@chazbit.com"
-}
-],
-"autoload": {
-"psr-4": {
-"Geocoding\\": "src/"
-}
-},
-"require": {
-"php" : "~8.1",
-"larapack/dd": "1.1"
-},
-"require-dev": {
-"phpunit/phpunit": "~10.5.30"
-},
-
+    "name": "chazbit/geocoding",
+    "description": "Uses the census bureau's api to convert addresses into latitude and longitude",
+    "keywords": [
+        "latitude",
+        "longitude",
+        "address"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chazbit",
+            "email": "charles@chazbit.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Geocoding\\": "src/"
+        }
+    },
+    "require": {
+        "php": "~8.1",
+        "larapack/dd": "1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~10.5.30"
+    },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
         }
     }
 }
-
 ```
 
 # The Domain:
@@ -567,12 +569,11 @@ $latitude = $coordinatesArray['x'];
 $longitude = $coordinatesArray['y'];
 ```
 
-That's ugly and can easily change if the Census Bureau updates it's api later.  However, we are given a "benchmark" number that defines
-the structure of the data.  If they don't follow this convention on their end and the structure of the data changes and breaks our application, we only have to look in one place.
+That's ugly and can easily change if the Census Bureau updates it's api later.  However, we are given a "benchmark" number that defines the structure of the data.  If they don't follow this convention on their end and the structure of the data changes and breaks our application, we only have to look in one place.
 
-*Why use curl instead of a package like Guzzle?* You might ask.  As explained in the section about the GeocodingConfig class, Guzzle adds another dependency to our relatively small codebase. In my experience, the fewer composer dependencies the better. This is worth it, if I'm using POST, PUT, or DELETE endpoints.  However, in this case, since it's just a GET request, we can knock this out using the PHP curl library.
+*Why use Curl instead of a package like Guzzle?* You might ask.  As explained in the section about the GeocodingConfig class, Guzzle adds another dependency to our relatively small codebase. In my experience, the fewer composer dependencies the better. This is worth it, if I'm using POST, PUT, or DELETE endpoints.  However, in this case, since it's just a GET request, we can knock this out using the PHP curl library.
 
-One code smell that I see is
+*One code smell that I see is the url generation is performed in the repository:*
 
 ```
     public function generateUrlFromAddress(Address $address) : string
@@ -621,7 +622,7 @@ class GenerateUrlFromAddress
 }
 ```
 
-Now you can use Dependency Injection to pass that class into CensusBureauApiRepository
+Now you can use Dependency Injection to pass that class into ```CensusBureauApiRepository```
 
 ```
 <?php
@@ -752,7 +753,7 @@ class ConvertAddressIntoLatAndLongAction
     }
 
     /**
-     * Convenient, bootable static method that makes calls to this action painless.
+     * Convenient, bootable static method that makes calls to this action painlessly.
      */
     public static function for(Address $address) : LatLong
     {
@@ -766,7 +767,7 @@ class ConvertAddressIntoLatAndLongAction
 }
 ```
 
-With this refactoring, we could just call ```ConvertAddressIntoLatAndLongAction::for($address);``` this is much easier to deal with.  In some controller where this might be used, you can just call this statically without having to worry about confusing instantiation.
+With this refactoring, we could just call ```ConvertAddressIntoLatAndLongAction::for($address)``` this is much easier to deal with.  In some controller where this might be used, you can just call this statically without having to worry about confusing instantiation.
 
 # Validation
 The other thing we need to do is validate the input coming into our domain models (Address and LatLong).  According to the rules of value objects in Domain Driven Design (DDD), we must always have them in a valid state.  So let's modify Address first to validate if what's being passed in is a valid address
