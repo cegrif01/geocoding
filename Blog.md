@@ -504,8 +504,6 @@ use Geocoding\Infrastructure\Config\GeocodingConfig;
  * This class is responsible for hitting the Census Bureau api and returning
  * the json response of the data we will use
  */
-
-//vendor/bin/phpunit tests/Infrastructure/Repositories/CensusBureauApiRepositoryTest.php
 class CensusBureauApiRepository implements AddressDataRepositoryInterface
 {
     public GeocodingConfig $geocodingConfig;
@@ -558,8 +556,9 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
 }
 ```
 
-Since this repository implements our AddressDataRepositoryInterface, we need a fetchAddressCoordinates(Address $address) : LatLong
-method.  So you can see that's been added. Repositories hide some of the ugliest code in our applications.  For example:
+Since this repository implements our AddressDataRepositoryInterface, we need a ```fetchAddressCoordinates(Address $address) : LatLong``` method.  So you can see that's been added. Repositories hide some of the ugliest code in our applications.  
+
+**For example:**
 
 ```
 $coordinatesArray = $responseData['result']['addressMatches'][0]['coordinates'];
@@ -569,12 +568,9 @@ $longitude = $coordinatesArray['y'];
 ```
 
 That's ugly and can easily change if the Census Bureau updates it's api later.  However, we are given a "benchmark" number that defines
-the structure of the data.  If they don't follow this convention on their end and the structure of the data changes and breaks our application,
-we only have to look in one place.
+the structure of the data.  If they don't follow this convention on their end and the structure of the data changes and breaks our application, we only have to look in one place.
 
-Why use curl instead of a package like Guzzle? You might ask.  As explained in the section about the GeocodingConfig class,
-Guzzle adds another dependency to our relatively small codebase. In my experience, the fewer composer dependencies the better. This is worth it, if I'm using POST, PUT, or DELETE endpoints.  However, in this case
-since it's just a GET request we can knock this out using the PHP curl library.
+*Why use curl instead of a package like Guzzle?* You might ask.  As explained in the section about the GeocodingConfig class, Guzzle adds another dependency to our relatively small codebase. In my experience, the fewer composer dependencies the better. This is worth it, if I'm using POST, PUT, or DELETE endpoints.  However, in this case, since it's just a GET request, we can knock this out using the PHP curl library.
 
 One code smell that I see is
 
@@ -593,7 +589,7 @@ One code smell that I see is
 
 I think this is a great opportunity for a refactoring so let's do that.
 
-todo (perform the refactoring)
+**Refactoring by moving the Url Generation process to it's own class:**
 
 ```
 <?php
@@ -625,7 +621,7 @@ class GenerateUrlFromAddress
 }
 ```
 
-Now you can use DI to inject that class into CensusBureauApiRepository
+Now you can use Dependency Injection to pass that class into CensusBureauApiRepository
 
 ```
 <?php
@@ -681,16 +677,10 @@ class CensusBureauApiRepository implements AddressDataRepositoryInterface
 }
 ```
 
-Now let's go the Actions/Services directory.  Some developers call them Actions others call them Services.  That's up to you.
-I personally like Actions because of it's name and purpose.  Actions/Services, combine the repositories, domain models
-and any other helper functions to perform "the thing".  In this case, remember "the thing" is to convert an
-address into a latitude and longitude.  In the next article, we will take two sets of coordinates (lat/long) and
-return the distance between them.  For now, we need to convert the address into a lat/long. 
+# Actions/Services:
 
-Repositories only exist to be used by Services/Actions, so they will always be composed of the repository.  We will pass 
-in an AddressDataRepositoryInterface into the constructor of the Action instead of the concrete
-implementation of CensusBureauApiRepository.  The way we go about getting lat/long could change.  There are hundreds if not thousands
-of apis that offer this service.
+Now let's go the Actions/Services directory.  Some developers call them Actions others call them Services.  That's up to you. I personally like Actions because it implies the actual doing of an essential piece of code.  Actions/Services, combine the repositories, domain models, and any other helper functions to perform "the thing".  In this case, remember "the thing" is to convert an address into a latitude and longitude.  In the next article, we will take two sets of coordinates (lat/long) and return the distance between them.  For now, we need to convert the address into a lat/long. 
+
 
 ```
 <?php
@@ -719,16 +709,13 @@ class ConvertAddressIntoLatAndLongAction
     }
 }
 ```
+Repositories only exist to be used by Services/Actions, so they will always be composed of the repository.  We will pass in an AddressDataRepositoryInterface into the constructor of the Action instead of the concrete implementation of CensusBureauApiRepository.  The way we go about getting lat/long could change.  There are hundreds if not thousands of apis that offer this service.
 
-The other reason our Actions/Services classes encapsulate the repositories is we might want to use
-Actions/Services to be used in another module within our codebase.  It's important we don't access
-Domain Logic or Infrastructure details from another module.  It must go through our Actions/Services
-first.  So they act as a gatekeeper for a module of code.  This will make a lot more sense
-when we add the distance features in the next article.
+The other reason our Actions/Services classes encapsulate the repositories is we might want to use Actions/Services to be used in another module within our codebase.  It's important we don't access
+Domain Logic or Infrastructure details from another module.  It must go through our Actions/Services first.  So they act as a gatekeeper for a module of code.  This will make a lot more sense when we add the distance features in the next article.
 
-
-Let's take the time to go over some pain points and how to fix them.  The first let's address the super awkward calling of 
-the ConvertAddressIntoLatAndLongAction.php class.  In order to instantiate this class, you'll need to do something like this:
+# Pain Points
+Let's take the time to go over some pain points and how to fix them.  The first let's address the super awkward calling of the ConvertAddressIntoLatAndLongAction.php class.  In order to instantiate this class, you'll need to do something like this:
 
 ```
         /** @var ConvertAddressIntoLatAndLongAction $addressConverter */
@@ -749,7 +736,6 @@ use Geocoding\Infrastructure\Config\GeocodingConfig;
 use Geocoding\Infrastructure\Repositories\CensusBureauApiRepository;
 use Geocoding\Infrastructure\Utils\GenerateUrlFromAddress;
 
-//vendor/bin/phpunit tests/Actions/ConvertAddressIntoLatAndLongActionTest.php
 class ConvertAddressIntoLatAndLongAction
 {
     /** @var CensusBureauApiRepository  */
@@ -780,12 +766,10 @@ class ConvertAddressIntoLatAndLongAction
 }
 ```
 
-With this refactoring, we could just call ```ConvertAddressIntoLatAndLongAction::for($address);``` this is much easier to deal with.
-In some controller where this might be used, you can just call this statically without having to worry about confusing instantiation.
+With this refactoring, we could just call ```ConvertAddressIntoLatAndLongAction::for($address);``` this is much easier to deal with.  In some controller where this might be used, you can just call this statically without having to worry about confusing instantiation.
 
-The other thing we need to do is validate the input coming into our domain models (Address and LatLong).  According to the rules of value objects
-in Domain Driven Design (DDD), we must always have them in a valid state.  So let's modify Address first to validate
-if what's being passed in is a valid address
+# Validation
+The other thing we need to do is validate the input coming into our domain models (Address and LatLong).  According to the rules of value objects in Domain Driven Design (DDD), we must always have them in a valid state.  So let's modify Address first to validate if what's being passed in is a valid address
 
 ```
 <?php
@@ -913,14 +897,9 @@ class LatLong
 }
 ```
 
-These validators are rather complex.  They could be split into a trait, but that's up to you.  I think the point has been made for keeping
-value objects in valid states.  This rule comes in handy when dealing with form validation.  If all of our objects are validated,
-even if you forget a validation rule at the Controller level, the hard work is already done for you.  You can just bubble the exception up to the
-controller and display it to the user.
+These validators are rather complex.  They could be split into a trait, but that's up to you.  I think the point has been made for keeping value objects in valid states.  This rule comes in handy when dealing with form validation.  If all of our objects are validated as they are instantiated, even if you forget a validation rule at the Controller level, the hard work is already done for you.  You can just bubble the exception up to the controller and display it to the user.
 
-Now our revised directory structure looks like the following
-
-(todo our revised structure)
+*Now our revised directory structure looks like the following*
 
 ```
 geocoding
@@ -946,22 +925,18 @@ geocoding
            └── Config
                    └── GeocodingConfig.php
            └── Utils
-                    └── GenerateUrlFromAddress.php
+                   └── GenerateUrlFromAddress.php
            └── Repositories
                    └── CensusBureauApiRepository.php
 ```
 
-This is all for now, but let's recap.
-(todo write recap)
+# Conclusion
 
-In this tutorial, we leveraged the power of DDD to solve a meaningful problem.  This tutorial will also be on my github repo
-```https://github.com/chazbit/geocoding``` (todo make a link).  We started off by building our domain models, which in this case
-was just two value objects: Address and LatLong.  We used the repository pattern to encapsulate the complex details
-of dealing with the Census Bureau Api that handles curl interaction.  We used a config file GeocodingConfig that has a
-static helper method called make() that will use it's config defaults without the client (the consumer of the config api) having to instantiate it.
-Finally, we created an Action/Service class called ConvertAddressIntoLatAndLongAction, in our application layer.  This class
-works in conjuction with the CensusBureauApi to return the results in terms of a domain model.  In our case this is the LatLong class.
+In this tutorial, we leveraged the power of DDD to solve a meaningful problem.  This tutorial will also be on my github repo https://github.com/chazbit/geocoding.  We started off by building our domain models, which in this case was just two value objects: Address and LatLong.
 
+We used the repository pattern to encapsulate the complex details of dealing with the Census Bureau Api that handles curl interaction.  We used a config file GeocodingConfig that has a static helper method called make() that will use it's config defaults without the client (the consumer of the config api) having to instantiate it.
 
-In the next article we will continue to solve part 2.  We will take two LatLong classes and find the 
-distance between them.  We will also discuss modules... Stay Tuned!
+Finally, we created an Action/Service class called ```ConvertAddressIntoLatAndLongAction```, in our application layer.  This class works in conjuction with the CensusBureauApi to return the results in terms of a domain model.  In our case this is the LatLong domain model.
+
+## To Be Continued... Part 2 will handle Distance conversions
+In the next article we will continue to solve part 2.  We will take two LatLong classes and find the distance between them.  We will also discuss modules... Stay Tuned!
