@@ -154,21 +154,21 @@ geocoding
 │       └── index.php (includes the composer autoloader)
 │
 └── src
-        ├── Actions
-        │     └── ConvertAddressIntoLatAndLongAction.php
-        ├── Domain
-        │     └── DataStructures
-        │              └── AddressStruct.php
-        │              └── LatLongStruct.php
-        │     └── Address.php
-        │     └── LatLong.php
-        │     └── AddressDataRepositoryInterface.php
-        │      
-        └── Infrastructure
-               └── Config
-                       └── GeocodingConfig.php
-               └── Repositories
-                       └── CensusBureauApiRepository.php
+│       ├── Actions
+│       │     └── ConvertAddressIntoLatAndLongAction.php
+│       ├── Domain
+│       │     └── DataStructures
+│       │              └── AddressStruct.php
+│       │              └── LatLongStruct.php
+│       │     └── Address.php
+│       │     └── LatLong.php
+│       │     └── AddressDataRepositoryInterface.php
+│       │      
+│       └── Infrastructure
+│             └── Config
+│                     └── GeocodingConfig.php
+│             └── Repositories
+│                     └── CensusBureauApiRepository.php
 └── tests
     ├── Actions
     │     └── ConvertAddressIntoLatAndLongActionTest.php
@@ -915,7 +915,7 @@ geocoding
     │     └── DataStructures
     │              └── AddressStruct.php
     │              └── LatLongStruct.php
-    │      └── Exceptions
+    │     └── Exceptions
     │              └── InvalidAddressException.php
     │              └── InvalidLatitudeAndLongitudeException.php
     │     └── Address.php
@@ -923,12 +923,26 @@ geocoding
     │     └── AddressDataRepositoryInterface.php
     │      
     └── Infrastructure
-           └── Config
-                   └── GeocodingConfig.php
-           └── Utils
-                   └── GenerateUrlFromAddress.php
-           └── Repositories
-                   └── CensusBureauApiRepository.php
+    │       └── Config
+    │               └── GeocodingConfig.php
+    │       └── Utils
+    │               └── GenerateUrlFromAddress.php
+    │       └── Repositories
+    │               └── CensusBureauApiRepository.php
+    │               
+    └── tests
+            ├── Actions
+            │     └── ConvertAddressIntoLatAndLongActionTest.php
+            │
+            ├── Domain
+            │     └── AddressTest.php
+            │     └── LatLongTest.php
+            │      
+            └── Infrastructure
+                   └── Repositories
+                          └── CensusBureauApiRepositoryTest.php                                        
+                   └── Utils
+                          └── GenerateUrlFromAddressTest.php 
 ```
 
 # Conclusion
