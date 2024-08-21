@@ -1,17 +1,21 @@
-In this 2 part tutorial serious, we will build a software package that uses an api to take two addresses and determine the distance apart.  This can be used in a variety of applications.  For example, determining the optimal distance in a region for a door to door sales team to travel between locations on foot.
+# Problem Summary
 
-For part 1 we will focus on converting address into Latitude and Longitude.  For part 2, we will take two Latitude and Longitude
-and convert them to a distance in miles or kilometers.
+In this 2 part tutorial series, we will build a software package that uses an api to take two addresses and determine the distance apart.  This can be used in a variety of applications.  For example, determining the optimal distance in a region for a door to door sales team to travel between locations on foot.
 
-We could use the GoogleMaps™ api to take two addresses and determine the latitude and longitude.  It could also tell us the distance between the two locations.
+For part 1 we will focus on converting address into Latitude and Longitude.  For part 2, we will take two Latitude and Longitude and convert them to a distance in miles or kilometers.
+
+We could use the GoogleMaps™ api to take two addresses and determine the latitude and longitude.  It could also tell us the distance between the two locations.  However, there is a free option to perform both of these tasks.
 
 For determining the distance between the two addresses, there are handy distance functions that can convert a Lat/Long into a distance.
 If we ever find out the earth is flat for some reason, then these functions are totally wrong.  Fingers crossed.
 
-First, let’s find the api for converting addresses into Lat/Long.   I want the repo to be compatible with most versions of php.  So we will use PHP 8.1 for this.
-At the time of this writing, php8.3 is out, but I will use the version below that one (8.1) so it can be used just in case you haven’t updated yet.
-Having worked on several projects for clients, I have noticed it's rare when they are on the bleeding edge version of php.
-I will use some unique concepts throughout, but don’t worry, I’ll take the time to explain.  You can check out the github repository here: https://github.com/chazbit/geocoding.
+# Let's get started
+
+First, let’s find the api for converting addresses into Lat/Long.   I want the repo to be compatible with most versions of php.  So we will use PHP 8.1 for this project.
+
+At the time of this writing, php8.3 is out, but I will use an older version (PHP 8.1) so it can be used just in case you haven’t updated yet.
+
+Having worked on several projects for clients, I have noticed it's rare when they are on the bleeding edge version of php.  I will use some unique concepts throughout, but don’t worry, I’ll take the time to explain.  You can check out the github repository here: https://github.com/chazbit/geocoding.
 
 You can download the repository locally.  I suggest you follow along.
 
@@ -20,22 +24,24 @@ git clone git@github.com:chazbit/geocoding.git
 
 ```
 
-We will ensure compliance with the PSR-4 standard.
+This repo is in compliance with the PSR-4 standard.  To perform the geocoding, we will use the free api from the good ol’ Census Bereau!  Yes, you can use their api for free (at the time of this blog).
 
-We will use the free api from the good ol’ Census Bereau!  Yes, you can use their api for free (at the time of this blog).
-Go to: https://geocoding.geo.census.gov/.  The documentation for their api is here: https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html
+Go to: https://geocoding.geo.census.gov/.
+
+The documentation for their api is here: https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html
 
 Lets go to Red’s stadium for some baseball and then head to Bonaroo for a music festival.  The address to Reds stadium and Bonnaroo, respectively are as follows:
 
-Reds stadium
+**Reds stadium**
 100 Joe Nuxhall Way, Cincinnati, OH 45202
 
 
-Bonnaroo
+**Bonnaroo**
 1560 New Bushy Branch Rd, Manchester, TN 37355, United States
 
+We can go to the Census Bureau website with the Reds address:
 
-We can go to the census bureau website with the Reds address:
+**The link for Reds Statium:**
 
 https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=100%20Joe%20Nuxhall%20Way%2C%20Cincinnati%2C%20OH%2045202-5108&benchmark=4&format=json
 
@@ -84,7 +90,8 @@ https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=100%2
 }
 ```
 
-The link for Bonnaroo:
+**The link for Bonnaroo:**
+
 https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=1560%20New%20Bushy%20Branch%20Rd%2C%20Manchester%2C%20TN%2037355%2C%20United%20States&benchmark=4&format=json
 
 ```
@@ -132,7 +139,7 @@ https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=1560%
 }
 ```
 
-I’m actually quite astonished that this is free!  Almost seems too good to be true.  Let’s write this api using php.  We don’t want to couple the functionality to a particular framework.
+I’m actually quite astonished that this is free!  Almost seems too good to be true.  Let’s write the interaction for this api using php.  We don’t want to couple the functionality to a particular framework, so we will use a few dependencies as possible.
 
 At this point your directory structure should look like the following.  We will add to this as we go along but this is a good place to start:
 
@@ -175,10 +182,10 @@ geocoding
 ```
 
 Let's discuss each of these files/directories in detail.  You can observe the unit tests in the repository: https://github.com/chazbit/geocoding.
-The composer.json is where the dependencies are found.  I installed a phpunit version that's compatible with php8.1.  I also like the debugging function
-```dd()```.  It's a useful part of the laravel tools, so we added that one too.
 
-The composer.json file should look like the following:
+The composer.json file is where the dependencies are found.  I installed a phpunit version that's compatible with php8.1.  I also like the debugging function ```dd()```.  It's a useful part of the laravel tools, so we added that one too.
+
+**The composer.json file should look like the following:**
 
 ```
 {
@@ -215,16 +222,15 @@ The composer.json file should look like the following:
 
 ```
 
-First we'll start with the Domain directory.  I like to use datastructures because they are more descriptive than PHP arrays.
-At the time of this writing, C# and Java both have records which are basically structs (readonly data containers with no actual functionality).  I started my career as an embedded
-C programmer so the concept of using structs feels more natural for me.  Even if you don't like the idea of structs, they play
+# The Domain:
+
+First we'll start with the Domain directory.  I like to use data structures because they are more descriptive than PHP arrays.  At the time of this writing, C# and Java both have records which are basically readonly structs (readonly data containers with no actual functionality).  I started my career as an embedded C programmer so the concept of using structs feels more natural for me.  Even if you don't like the idea of structs, they play
 more of a background role in this software package.  It's a great way to figure out what data is needed.  It also separates data from functionality.
 
 
-All the fields are readonly because we want our structs (or records) to be immutable.  If this needs to be modified, we will instantiate
-a new copy of this struct and return it.
+All the fields are readonly because we want our structs (or records) to be immutable.  If this needs to be modified, we will instantiate a new copy of this struct and return it.
 
-AddressStruct (or you could name it AddressRecord):
+**AddressStruct (or you could name it AddressRecord):**
 
 ```
 <?php
@@ -254,7 +260,7 @@ class AddressStruct
 }
 ```
 
-LatLongStruct or LatLongRecord
+**LatLongStruct or LatLongRecord**
 
 ```
 <?php
@@ -276,10 +282,9 @@ class LatLongStruct
 }
 ```
 
-Since we don't have a need for persistence, we don't have "entities".  These domain models don't have an id so their equality is purely determined on their properties.
-That makes these domain models value objects. Let's create them so we can make sense of how to use these structs we just created.
+Since we don't have a need for persistence, we don't have "entities".  These domain models don't have an id so their equality is purely determined based on their properties. That makes these domain models value objects. Let's create them so we can make sense of how to use these structs we just created.
 
-Address.php
+**Address.php**
 
 ```
 <?php
@@ -304,7 +309,7 @@ class Address
 }
 ```
 
-LatLong.php
+**LatLong.php**
 
 ```
 <?php
@@ -325,8 +330,8 @@ class LatLong
 }
 ```
 
-Each one of these value objects will validate the input before setting.  We will add validation later.  Value objects and entities should always be in a valid state.
-When we need functionality that modifies one of these value objects, then we can create a method that returns a new underlying datastructure.
+Each one of these value objects will validate the input before setting.  We will add validation later.  Validating value objects and entities are critical to make sure they are always in a valid state.  When we need functionality that modifies one of these value objects, then we can create a method that returns a new underlying datastructure to maintain immutability.
+
 For example if we want to update the city, we can put this method in the Address class.
 
 ```
@@ -344,7 +349,7 @@ For example if we want to update the city, we can put this method in the Address
 This might seem a little unorthodox, but immutable underlying data structures solve many issues with "unintentional state changes".
 In my experiences with OOP, having a solution for unintentional state changes is much appreciated, even though, it might not be totally apparent why that's necessary.
 
-Let's look at an example of the mutable way and how side effects can creep in:
+**Let's look at an example of the mutable way and how side effects can creep in:**
 
 ```
 $address1 = new Address('USA', 'Cincinnati', 'OH', '555 Something St.', '40205');
@@ -372,7 +377,7 @@ $adress1->equals($address2); //returns false because we mutated $address1 direct
 
 ```
 
-With an immutable address
+**With an immutable address:**
 
 ```
 $address1 = new Address('USA', 'Cincinnati', 'OH', '555 Something St.', '40205');
@@ -401,20 +406,10 @@ $addressReturnedFromService->equals($address1); //false
 $adress1->equals($address2); //returns true
 ```
 
-If you don't understand why this is a big deal, then please, take the time to break this apart using various examples. This is an extremely important principle
-that I feel like less experienced software developers miss.
+If you don't understand why this is a big deal, then please, take the time to break this apart using various examples. This is an extremely important principle that I feel like less experienced software developers miss.  Immutable data structures aren't just associated with functional programming.  We can use this in the OOP world too!
 
-Let's move on to the RepositoryInterface we created.  This interface belongs in our domain.  It describes how the world outside of the domain
-will utilize our domain models.  This should always receive domain models and/or return domain models.  In this case, the "outside world"
-is the REST api offered by the Census Bureau.  When I first learned Domain Driven Design, I was confused as to why the Repository interfaces
-were in the domain itself and not in the repositories folder.  Think of it this way... when you're designing the system,
-domain models need be used somehow by some type of external process.  We either want to write it to a file, save it to a database, or -- in this particular case -- use
-it to consume the correct API endpoints.  The objective of this project is to take an address and convert it into latitude and longitude, which means, we will need to read
-from an external source.  The parameter passed in will be our Address class. The return type of the source would be our LatLong class.
-
-Another thing to take into consideration is that the Census Bureau may charge us for this service one day it might be more cost-effective to use another way to perform the main objective.
-Hence the RepositoryInterface.  In other words, the RepositoryInterface means "I don't know how we're gonna get it done, but we are gonna get er' done".  We can defer or change
-implementation details as long as we have the correct parameter, and return types.
+**Domain Interfaces:**
+Let's move on to the RepositoryInterface we created.  This interface belongs in our domain.  It describes how the world outside of the domain will utilize our domain models.  This should always receive domain models and/or return domain models.  In this case, the "outside world" is the REST api offered by the Census Bureau.  When I first learned Domain Driven Design, I was confused as to why the Repository interfaces were in the domain itself and not in the repositories directory.  Think of it this way-- when you're designing the system, domain models need be used somehow by some type of external process.  We either want to write it to a file, save it to a database, or, in this particular case, use it to consume the correct API endpoints.  The objective of this project is to take an address and convert it into latitude and longitude, which means, we will need to read from an external source.  The parameter passed in will be our Address class. The return type of the source would be our LatLong class.
 
 
 ```
@@ -431,14 +426,14 @@ interface AddressDataRepositoryInterface
 }
 ```
 
+Another thing to take into consideration is that the Census Bureau may charge us for this service one day it might be more cost-effective to use another way to perform the main objective.
+Hence the RepositoryInterface.  In other words, the RepositoryInterface means "I don't know how we're gonna get it done, but we are gonna get er' done".  We can defer or change
+implementation details as long as we have the correct parameter, and return types.
+
 Congratulations we are done with the Domain layer.  Let's move on to the Infrastructure layer now.
 
-The config will look a bit weird so let me explain. We are using raw PHP.  I try my hardest to not couple simple packages
-to a specific framework.  It can be easy to get bogged down in the latest breaking changes in Laravel, Symfony, or CakePHP.  When I go to
-github to find a PHP package, 8/10 of them are outdated and no good because it's coupled to an older version of Laravel.  I know I could
-have just installed the Config package from Laravel and that would probably be the way you'd do it.  In those rare cases when I don't want
-to use a bunch of libraries, here's a clever way to tie config values to a single class.  Of course this is immutable because I never want
-my config to change it's properties at run time.
+# Configuration
+The config will look a bit weird so let me explain. We are using raw PHP.  I try my hardest to not couple simple packages to a specific framework.  It can be easy to get bogged down in the latest breaking changes in Laravel, Symfony, or CakePHP.  When I go to github to find a PHP package, 8/10 of them are outdated and no good because it's coupled to an older version of Laravel or Symfony.  I know I could have just installed the Config package from Laravel and that would probably be the way you'd do it.  In those rare cases when I don't want to use a bunch of libraries, here's a clever way to tie config values to a single class.  Of course this is immutable because I never want my config to change it's properties at run time.
 
 ```
 <?php
@@ -487,12 +482,13 @@ So I can just load my config by running
     Geoconfig::make();
 ```
 
-and now I have a config object where I can access all it's values in one place. If you want to have a mock api for tests, you can add
-a static method called test() with different parameters.  This allows you to encapsulate different configurations for different environments
+Now I have a config object where I can access all it's values in one place. If you want to have a mock api for tests, you can add a static method called test() with different parameters.  This allows you to encapsulate different configurations for different environments
 on command.
 
 Now moving on to the actual repository where the meat and potatoes of the application reside.  A wise coder once said (paraphrasing) "Abstraction is the art of deferring details".
 That's a lot of setup to just hit a GET request on a REST api.  As applications grow in scope and data, this structure adds sanity to your life!  Most experienced developers would agree.
+
+**The Repository in the Infrastruture layer**
 
 ```
 <?php
