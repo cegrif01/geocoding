@@ -211,7 +211,8 @@ The composer.json file is where the dependencies are found.  I installed a phpun
     },
     "require": {
         "php": "~8.1",
-        "larapack/dd": "1.1"
+        "larapack/dd": "1.1",
+        "ext-curl": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~10.5.30"
