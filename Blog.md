@@ -770,7 +770,7 @@ class ConvertAddressIntoLatAndLongAction
 With this refactoring, we could just call ```ConvertAddressIntoLatAndLongAction::for($address)``` this is much easier to deal with.  In some controller where this might be used, you can just call this statically without having to worry about confusing instantiation.
 
 # Validation
-The other thing we need to do is validate the input coming into our domain models (Address and LatLong).  According to the rules of value objects in Domain Driven Design (DDD), we must always have them in a valid state.  So let's modify Address first to validate if what's being passed in is a valid address
+The other thing we need to do is validate the input coming into our domain models (Address and LatLong).  According to the rules of value objects in Domain Driven Design (DDD), we must always have them in a valid state.  So let's modify Address first to validate if what's being passed in is a valid address.
 
 ```
 <?php
@@ -898,7 +898,9 @@ class LatLong
 }
 ```
 
-These validators are rather complex.  They could be split into a trait, but that's up to you.  I think the point has been made for keeping value objects in valid states.  This rule comes in handy when dealing with form validation.  If all of our objects are validated as they are instantiated, even if you forget a validation rule at the Controller level, the hard work is already done for you.  You can just bubble the exception up to the controller and display it to the user.
+These validators are rather complex.  I used https://www.phpliveregex.com/, the derive at the regular expressions that work in each case.  You can take my word for it, or you can try out the regex yourself.  We also have custom validation exceptions for more specific detail as to how the instantiation failed.
+
+They could be split into a trait, but that's up to you.  I think the point has been made for keeping value objects in valid states.  This rule comes in handy when dealing with form validation.  If all of our objects are validated as they are instantiated, even if you forget a validation rule at the Controller level, the hard work is already done for you.  You can just bubble the exception up to the controller and display it to the user.
 
 *Now our revised directory structure looks like the following*
 
